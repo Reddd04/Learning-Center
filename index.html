@@ -502,7 +502,7 @@
         }
         #customAlertInput {
             margin-bottom: 20px;
-            -webkit-text-security: disc; /* Membuat password titik-titik secara modern */
+            -webkit-text-security: disc;
         }
         .custom-alert-btn-group {
             display: flex;
@@ -643,16 +643,7 @@
     </div>
 
     <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9d1a8u2-VN-rBNWSA5Qk9MVKBNSel2uxLiZIHZRUFU0OHsB5XYeA8lsvXhkWEwexcnQ/exec';
-
-        let globalDatabase = JSON.parse(localStorage.getItem('learningCenterDeptUploadDB')) || {
-            "FB Service": {
-                tasks: [
-                    { type: "News", url: "https://example.com/berita-hotel", instruction: "Read the article below and write a brief summary." }
-                ],
-                customUploadJs: ""
-            }
-        };
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxeIyucOpygzm1pEt1MybV_Mm9zHL4zzMc5XQIky2gfEhkr25KDy3kM78jk7KK1YYW6pQ/exec';
 
         let userTaskHistory = JSON.parse(localStorage.getItem('learningCenterHistory')) || {};
         let tempExcelTasks = null;
@@ -693,7 +684,7 @@
             customOptions.classList.remove('open');
         });
 
-        // Custom Popup Replacements for alert() and prompt() with smooth timing
+        // Custom Popup Replacements for alert() and prompt()
         function showCustomAlert(message, title = "Notification") {
             return new Promise((resolve) => {
                 document.getElementById('customAlertTitle').textContent = title;
@@ -716,7 +707,7 @@
                 document.getElementById('customAlertMessage').textContent = message;
                 const inputField = document.getElementById('customAlertInput');
                 inputField.value = "";
-                inputField.type = 'password'; // Membuat input password tersembunyi (titik-titik)
+                inputField.type = 'password';
                 inputField.style.display = 'block';
                 document.getElementById('customAlertCancelBtn').style.display = 'block';
                 
@@ -777,17 +768,25 @@
             }, 450);
         }
 
-        function loadAdminDataForDept() {
+        async function loadAdminDataForDept() {
             const dept = document.getElementById('adminDeptSelect').value;
-            if (!globalDatabase[dept]) {
-                globalDatabase[dept] = { tasks: [], customUploadJs: "" };
-            }
             document.getElementById('excelFileInput').value = "";
-            document.getElementById('adminJsInput').value = globalDatabase[dept].customUploadJs || "";
+            document.getElementById('adminJsInput').value = "";
             tempExcelTasks = null;
             
-            const count = globalDatabase[dept].tasks ? globalDatabase[dept].tasks.length : 0;
-            document.getElementById('uploadStatus').textContent = `System status: ${count} tasks loaded for this department.`;
+            document.getElementById('uploadStatus').textContent = "Checking online database...";
+
+            try {
+                const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&dept=${encodeURIComponent(dept)}`);
+                const result = await response.json();
+                
+                document.getElementById('adminJsInput').value = result.customUploadJs || "";
+                const count = result.tasks ? result.tasks.length : 0;
+                document.getElementById('uploadStatus').textContent = `System status: ${count} tasks loaded in online database for this department.`;
+            } catch (err) {
+                console.error(err);
+                document.getElementById('uploadStatus').textContent = "Failed to load online status.";
+            }
         }
 
         function downloadTemplate(e) {
@@ -846,19 +845,35 @@
             const dept = document.getElementById('adminDeptSelect').value;
             const customJsCode = document.getElementById('adminJsInput').value;
 
-            if (!globalDatabase[dept]) {
-                globalDatabase[dept] = { tasks: [], customUploadJs: "" };
+            if (tempExcelTasks === null || tempExcelTasks.length === 0) {
+                await showCustomAlert("Please upload an Excel file first before saving!", "Warning");
+                return;
             }
 
-            if (tempExcelTasks !== null) {
-                globalDatabase[dept].tasks = tempExcelTasks;
+            document.getElementById('uploadStatus').textContent = "Saving to Google Spreadsheet online... Please wait...";
+
+            const formData = new URLSearchParams();
+            formData.append("action", "saveAdminConfig");
+            formData.append("departemen", dept);
+            formData.append("tasks", JSON.stringify(tempExcelTasks));
+            formData.append("customJs", customJsCode);
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.status === "success") {
+                    await showCustomAlert(`Successfully saved configuration for ${dept} to online database!`, "Success");
+                    loadAdminDataForDept();
+                } else {
+                    await showCustomAlert("Failed to save: " + result.message, "Error");
+                }
+            } catch (err) {
+                console.error(err);
+                await showCustomAlert("An error occurred while saving to the server.", "Error");
             }
-
-            globalDatabase[dept].customUploadJs = customJsCode;
-
-            localStorage.setItem('learningCenterDeptUploadDB', JSON.stringify(globalDatabase));
-            await showCustomAlert(`Successfully saved configuration for ${dept}!`, "Success");
-            loadAdminDataForDept();
         }
 
         function getEmbedUrl(url) {
@@ -888,84 +903,76 @@
                 return;
             }
 
-            const deptData = globalDatabase[activeDepartment];
+            try {
+                const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&dept=${encodeURIComponent(activeDepartment)}`);
+                const deptData = await response.json();
 
-            if (!deptData || !deptData.tasks || deptData.tasks.length === 0) {
-                await showCustomAlert(`Sorry, task data for ${activeDepartment} has not been uploaded by the Administrator yet.`, "Notice");
-                return;
+                if (!deptData.tasks || deptData.tasks.length === 0) {
+                    await showCustomAlert(`Sorry, task data for ${activeDepartment} has not been uploaded by the Administrator yet.`, "Notice");
+                    return;
+                }
+
+                if (!userTaskHistory[activeUserName]) {
+                    userTaskHistory[activeUserName] = [];
+                }
+
+                let availableTasks = deptData.tasks.filter(task => !userTaskHistory[activeUserName].includes(task.url));
+
+                if (availableTasks.length === 0) {
+                    userTaskHistory[activeUserName] = [];
+                    availableTasks = deptData.tasks;
+                }
+
+                const randomIndex = Math.floor(Math.random() * availableTasks.length);
+                const selectedTask = availableTasks[randomIndex];
+
+                userTaskHistory[activeUserName].push(selectedTask.url);
+                localStorage.setItem('learningCenterHistory', JSON.stringify(userTaskHistory));
+
+                document.getElementById('userNameDisplay').textContent = activeUserName;
+                document.getElementById('userDeptDisplay').textContent = activeDepartment;
+                document.getElementById('taskType').textContent = selectedTask.type || "General";
+                document.getElementById('taskInstruction').textContent = selectedTask.instruction;
+                document.getElementById('taskFileToUpload').value = "";
+                document.getElementById('uploadProgress').textContent = "";
+
+                const mediaContainer = document.getElementById('mediaContainer');
+                mediaContainer.innerHTML = '';
+
+                let cat = (selectedTask.type || "").toLowerCase();
+                let rawUrl = selectedTask.url || "";
+
+                if (cat.includes('video') || rawUrl.includes('youtube') || rawUrl.includes('youtu.be')) {
+                    let embedLink = getEmbedUrl(rawUrl);
+                    mediaContainer.innerHTML = `
+                        <iframe src="${embedLink}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <a href="${rawUrl}" target="_blank" class="fallback-link">🔗 If video fails to load, click here to watch directly on YouTube</a>
+                    `;
+                } else if (cat.includes('music') || cat.includes('audio') || rawUrl.endsWith('.mp3') || rawUrl.endsWith('.wav')) {
+                    mediaContainer.innerHTML = `<audio controls src="${rawUrl}"></audio>`;
+                } else if (cat.includes('news') || cat.includes('berita') || cat.includes('artikel')) {
+                    mediaContainer.innerHTML = `
+                        <div class="news-card">
+                            <h3>📰 Article / News Task</h3>
+                            <p>Link: ${rawUrl}</p>
+                            <a href="${rawUrl}" target="_blank" class="news-btn">📖 Open Article Now</a>
+                        </div>
+                    `;
+                } else {
+                    mediaContainer.innerHTML = `<a href="${rawUrl}" target="_blank" style="display:block; padding:12px; background:var(--accent); color:white; text-align:center; border-radius:10px; text-decoration:none; font-weight:600;">Open Learning Material</a>`;
+                }
+
+                const modal = document.getElementById('taskModal');
+                modal.style.display = 'flex';
+                requestAnimationFrame(() => modal.classList.add('active'));
+
+            } catch (err) {
+                console.error(err);
+                await showCustomAlert("Failed to fetch task data from the server. Please check your internet connection.", "Error");
             }
-
-            if (!userTaskHistory[activeUserName]) {
-                userTaskHistory[activeUserName] = [];
-            }
-
-            let availableTasks = deptData.tasks.filter(task => !userTaskHistory[activeUserName].includes(task.url));
-
-            if (availableTasks.length === 0) {
-                userTaskHistory[activeUserName] = [];
-                availableTasks = deptData.tasks;
-            }
-
-            const randomIndex = Math.floor(Math.random() * availableTasks.length);
-            const selectedTask = availableTasks[randomIndex];
-
-            userTaskHistory[activeUserName].push(selectedTask.url);
-            localStorage.setItem('learningCenterHistory', JSON.stringify(userTaskHistory));
-
-            document.getElementById('userNameDisplay').textContent = activeUserName;
-            document.getElementById('userDeptDisplay').textContent = activeDepartment;
-            document.getElementById('taskType').textContent = selectedTask.type || "General";
-            document.getElementById('taskInstruction').textContent = selectedTask.instruction;
-            document.getElementById('taskFileToUpload').value = "";
-            document.getElementById('uploadProgress').textContent = "";
-
-            const mediaContainer = document.getElementById('mediaContainer');
-            mediaContainer.innerHTML = '';
-
-            let cat = (selectedTask.type || "").toLowerCase();
-            let rawUrl = selectedTask.url || "";
-
-            if (cat.includes('video') || rawUrl.includes('youtube') || rawUrl.includes('youtu.be')) {
-                let embedLink = getEmbedUrl(rawUrl);
-                mediaContainer.innerHTML = `
-                    <iframe src="${embedLink}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                    <a href="${rawUrl}" target="_blank" class="fallback-link">🔗 If video fails to load, click here to watch directly on YouTube</a>
-                `;
-            } else if (cat.includes('music') || cat.includes('audio') || rawUrl.endsWith('.mp3') || rawUrl.endsWith('.wav')) {
-                mediaContainer.innerHTML = `<audio controls src="${rawUrl}"></audio>`;
-            } else if (cat.includes('news') || cat.includes('berita') || cat.includes('artikel')) {
-                mediaContainer.innerHTML = `
-                    <div class="news-card">
-                        <h3>📰 Article / News Task</h3>
-                        <p>Link: ${rawUrl}</p>
-                        <a href="${rawUrl}" target="_blank" class="news-btn">📖 Open Article Now</a>
-                    </div>
-                `;
-            } else {
-                mediaContainer.innerHTML = `<a href="${rawUrl}" target="_blank" style="display:block; padding:12px; background:var(--accent); color:white; text-align:center; border-radius:10px; text-decoration:none; font-weight:600;">Open Learning Material</a>`;
-            }
-
-            const modal = document.getElementById('taskModal');
-            modal.style.display = 'flex';
-            requestAnimationFrame(() => modal.classList.add('active'));
         });
 
         function executeUploadTask() {
-            const deptData = globalDatabase[activeDepartment];
-            
-            if (deptData && deptData.customUploadJs && deptData.customUploadJs.trim() !== "") {
-                try {
-                    const customUploadFunc = new Function('userName', 'department', 'APPS_SCRIPT_URL', deptData.customUploadJs);
-                    let result = customUploadFunc(activeUserName, activeDepartment, APPS_SCRIPT_URL);
-                    if (result === false) return; 
-                    return; 
-                } catch (err) {
-                    console.error("Custom upload JavaScript error:", err);
-                    showCustomAlert("An error occurred in the custom department script.", "Script Error");
-                    return;
-                }
-            }
-
             defaultUploadTask();
         }
 
