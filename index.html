@@ -668,6 +668,7 @@
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwHbJLhMfYWwui5Pg5qCjxH2RC15RuM69r-tJkENHNCErQcUex9iWn0-1AH1jBrtlt1qQ/exec';
 
         let userTaskHistory = JSON.parse(localStorage.getItem('learningCenterHistory')) || {};
+        let liveDeptTasks = {}; // Menyimpan data tugas online yang sudah dipre-load
         let tempExcelTasks = null;
         let activeUserName = "";
         let activeDepartment = "";
@@ -685,7 +686,7 @@
         });
 
         document.querySelectorAll('.custom-option').forEach(option => {
-            option.addEventListener('click', () => {
+            option.addEventListener('click', async () => {
                 const value = option.getAttribute('data-value');
                 const text = option.textContent;
                 
@@ -698,6 +699,9 @@
                 
                 customSelect.classList.remove('open');
                 customOptions.classList.remove('open');
+
+                // Begitu departemen dipilih, otomatis ambil data online secara background (Preload kilat)
+                await preloadDepartmentData(value);
             });
         });
 
@@ -705,6 +709,20 @@
             customSelect.classList.remove('open');
             customOptions.classList.remove('open');
         });
+
+        // Fungsi Preload Online di background saat departemen diklik/dipilih
+        async function preloadDepartmentData(dept) {
+            if (liveDeptTasks[dept]) return; // Jika sudah ada, lewati
+            try {
+                const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&dept=${encodeURIComponent(dept)}`);
+                const deptData = await response.json();
+                if (deptData.tasks) {
+                    liveDeptTasks[dept] = deptData.tasks;
+                }
+            } catch (err) {
+                console.error("Preload background error:", err);
+            }
+        }
 
         // Custom Popup Replacements for alert() and prompt()
         function showCustomAlert(message, title = "Notification") {
@@ -887,6 +905,7 @@
                 });
                 const result = await response.json();
                 if (result.status === "success") {
+                    delete liveDeptTasks[dept]; // Reset memori online sementara untuk departemen ini
                     await showCustomAlert(`Successfully saved configuration for ${dept} to online database!`, "Success");
                     loadAdminDataForDept();
                 } else {
@@ -925,20 +944,25 @@
                 return;
             }
 
-            // Tampilkan Animasi Loading pada Tombol
             const submitBtn = document.getElementById('getTaskBtn');
             const spinner = document.getElementById('btnSpinner');
             const btnText = document.getElementById('btnText');
             
             submitBtn.disabled = true;
             spinner.style.display = 'block';
-            btnText.textContent = 'Loading Task...';
+            btnText.textContent = 'Fetching Online Task...';
 
             try {
-                const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&dept=${encodeURIComponent(activeDepartment)}`);
-                const deptData = await response.json();
+                // Ambil data online (jika belum ter-preload, ambil detik ini secara online langsung)
+                let deptTasks = liveDeptTasks[activeDepartment];
+                if (!deptTasks) {
+                    const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&dept=${encodeURIComponent(activeDepartment)}`);
+                    const deptData = await response.json();
+                    deptTasks = deptData.tasks || [];
+                    liveDeptTasks[activeDepartment] = deptTasks;
+                }
 
-                if (!deptData.tasks || deptData.tasks.length === 0) {
+                if (!deptTasks || deptTasks.length === 0) {
                     await showCustomAlert(`Sorry, task data for ${activeDepartment} has not been uploaded by the Administrator yet.`, "Notice");
                     return;
                 }
@@ -947,11 +971,11 @@
                     userTaskHistory[activeUserName] = [];
                 }
 
-                let availableTasks = deptData.tasks.filter(task => !userTaskHistory[activeUserName].includes(task.url));
+                let availableTasks = deptTasks.filter(task => !userTaskHistory[activeUserName].includes(task.url));
 
                 if (availableTasks.length === 0) {
                     userTaskHistory[activeUserName] = [];
-                    availableTasks = deptData.tasks;
+                    availableTasks = deptTasks;
                 }
 
                 const randomIndex = Math.floor(Math.random() * availableTasks.length);
@@ -1001,7 +1025,6 @@
                 console.error(err);
                 await showCustomAlert("Failed to fetch task data from the server. Please check your internet connection.", "Error");
             } finally {
-                // Sembunyikan Animasi Loading dan Aktifkan Tombol Kembali
                 submitBtn.disabled = false;
                 spinner.style.display = 'none';
                 btnText.textContent = 'Get Random Task';
