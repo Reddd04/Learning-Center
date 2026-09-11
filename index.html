@@ -237,6 +237,10 @@
             cursor: pointer;
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         button:hover {
@@ -247,6 +251,21 @@
 
         button:active {
             transform: translateY(-1px);
+        }
+
+        /* Loading Spinner Styles */
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Fixed Footer Credits & Admin Button */
@@ -542,7 +561,10 @@
                 <input type="hidden" id="department" required>
             </div>
 
-            <button type="submit">Get Random Task</button>
+            <button type="submit" id="getTaskBtn">
+                <span class="spinner" id="btnSpinner"></span>
+                <span id="btnText">Get Random Task</span>
+            </button>
         </form>
     </div>
 
@@ -903,6 +925,15 @@
                 return;
             }
 
+            // Tampilkan Animasi Loading pada Tombol
+            const submitBtn = document.getElementById('getTaskBtn');
+            const spinner = document.getElementById('btnSpinner');
+            const btnText = document.getElementById('btnText');
+            
+            submitBtn.disabled = true;
+            spinner.style.display = 'block';
+            btnText.textContent = 'Loading Task...';
+
             try {
                 const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&dept=${encodeURIComponent(activeDepartment)}`);
                 const deptData = await response.json();
@@ -969,6 +1000,11 @@
             } catch (err) {
                 console.error(err);
                 await showCustomAlert("Failed to fetch task data from the server. Please check your internet connection.", "Error");
+            } finally {
+                // Sembunyikan Animasi Loading dan Aktifkan Tombol Kembali
+                submitBtn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = 'Get Random Task';
             }
         });
 
