@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Center</title>
+    <!-- SheetJS Library for reading Excel files -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary-bg: #0F172A;
+            --card-bg: #FFFFFF;
+            --accent: #2563EB;
+            --accent-hover: #1D4ED8;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --border-color: #E2E8F0;
+            --success: #10B981;
+            --success-hover: #059669;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.12), 0 10px 20px -5px rgba(15, 23, 42, 0.04);
+            width: 100%;
+            max-width: 520px;
+            box-sizing: border-box;
+            animation: smoothEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+        }
+
+        @keyframes smoothEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(35px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes smoothExit {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-25px) scale(0.95);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-bg);
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 14px;
+            background-color: #F8FAFC;
+            color: var(--text-main);
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        input:hover, textarea:hover {
+            border-color: #94A3B8;
+            background-color: #FFFFFF;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--accent);
+            background-color: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+            transform: translateY(-2px);
+        }
+
+        /* CUSTOM SMOOTH SELECT STYLES */
+        .custom-select-wrapper {
+            position: relative;
+            user-select: none;
+            width: 100%;
+        }
+
+        .custom-select {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 14px;
+            background-color: #F8FAFC;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .custom-select.selected {
+            color: var(--text-main);
+        }
+
+        .custom-select:hover {
+            border-color: #94A3B8;
+            background-color: #FFFFFF;
+        }
+
+        .custom-select.open {
+            border-color: var(--accent);
+            background-color: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+
+        .custom-select::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-right: 2px solid var(--text-muted);
+            border-bottom: 2px solid var(--text-muted);
+            transform: rotate(45deg);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-left: 10px;
+            margin-top: -3px;
+        }
+
+        .custom-select.open::after {
+            transform: rotate(-135deg);
+            border-color: var(--accent);
+            margin-top: 3px;
+        }
+
+        .custom-options {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background-color: #FFFFFF;
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.15);
+            overflow: hidden;
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scale(0.98);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .custom-options.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .custom-option {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+        }
+
+        .custom-option:hover {
+            background-color: #EFF6FF;
+            color: var(--accent);
+            padding-left: 20px;
+        }
+
+        .custom-option.selected-opt {
+            background-color: #EFF6FF;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        /* Fixed Footer Credits & Admin Button */
+        .footer-credit {
+            position: fixed;
+            bottom: 15px;
+            left: 20px;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            z-index: 10;
+        }
+
+        .admin-link-btn {
+            position: fixed;
+            bottom: 15px;
+            right: 20px;
+            background: white;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+            border: 1px solid var(--border-color);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 10;
+        }
+
+        .admin-link-btn:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+        }
+
+        /* Ultra Smooth Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: background-color 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                        backdrop-filter 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                        opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                        visibility 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+            background-color: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 35px;
+            border-radius: 24px;
+            max-width: 580px;
+            width: 100%;
+            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.35);
+            max-height: 90vh;
+            overflow-y: auto;
+            box-sizing: border-box;
+            transform: translateY(40px) scale(0.92);
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: var(--primary-bg);
+            font-size: 22px;
+            letter-spacing: -0.5px;
+        }
+
+        .task-detail {
+            background-color: #F8FAFC;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 14px;
+            margin: 20px 0;
+        }
+
+        .close-btn {
+            background-color: #64748B;
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.2);
+        }
+        .close-btn:hover {
+            background-color: #475569;
+            box-shadow: 0 6px 16px rgba(100, 116, 139, 0.3);
+        }
+
+        #adminPanel {
+            display: none;
+        }
+
+        .back-btn {
+            background-color: #64748B;
+            margin-bottom: 20px;
+            width: auto;
+            padding: 10px 18px;
+            font-size: 13px;
+            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.15);
+        }
+        .back-btn:hover {
+            background-color: #475569;
+        }
+
+        .info-box {
+            background-color: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #1E40AF;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .file-upload-box {
+            border: 2px dashed #CBD5E1;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            background: #F8FAFC;
+            transition: all 0.3s ease;
+        }
+        .file-upload-box:hover {
+            border-color: var(--accent);
+            background: #F1F5F9;
+        }
+
+        .download-template-btn {
+            display: inline-block;
+            background-color: var(--success);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+        .download-template-btn:hover {
+            background-color: var(--success-hover);
+            transform: translateY(-2px);
+        }
+
+        .media-container {
+            margin-top: 12px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .media-container iframe, .media-container video, .media-container audio {
+            width: 100%;
+            border-radius: 10px;
+            border: none;
+        }
+        .media-container iframe {
+            height: 300px;
+        }
+
+        .news-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+        .news-card h3 {
+            margin-top: 0;
+            color: var(--primary-bg);
+            font-size: 18px;
+        }
+        .news-card p {
+            font-size: 12px;
+            color: var(--text-muted);
+            word-break: break-all;
+            margin-bottom: 18px;
+        }
+        .news-btn {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .news-btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .fallback-link {
+            display: block;
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--accent);
+            text-align: center;
+            text-decoration: underline;
+        }
+
+        .upload-section {
+            background: #F1F5F9;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 14px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        /* Custom Modern Alert/Prompt Modal */
+        #customAlertModal .modal-content {
+            max-width: 420px;
+            text-align: center;
+            padding: 30px;
+        }
+        #customAlertMessage {
+            font-size: 15px;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        #customAlertInput {
+            margin-bottom: 20px;
+            -webkit-text-security: disc; /* Membuat password titik-titik secara modern */
+        }
+        .custom-alert-btn-group {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MAIN PAGE -->
+    <div class="container" id="userMainPage">
+        <h1>Learning Center</h1>
+        <p class="subtitle">Complete your assigned training & modules</p>
+        <form id="learningForm">
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label>Select Department</label>
+                <!-- Custom Smooth Select Element -->
+                <div class="custom-select-wrapper" id="customDeptSelect">
+                    <div class="custom-select" id="customSelectTrigger">-- Choose Department --</div>
+                    <div class="custom-options" id="customOptionsList">
+                        <div class="custom-option" data-value="FB Service">FB Service</div>
+                        <div class="custom-option" data-value="FB Kitchen">FB Kitchen</div>
+                        <div class="custom-option" data-value="Front Office">Front Office</div>
+                        <div class="custom-option" data-value="Engineering">Engineering</div>
+                        <div class="custom-option" data-value="Security">Security</div>
+                        <div class="custom-option" data-value="Spa">Spa</div>
+                        <div class="custom-option" data-value="Housekeeping">Housekeeping</div>
+                        <div class="custom-option" data-value="Finance">Finance</div>
+                        <div class="custom-option" data-value="People & Culture">People & Culture</div>
+                    </div>
+                </div>
+                <input type="hidden" id="department" required>
+            </div>
+
+            <button type="submit">Get Random Task</button>
+        </form>
+    </div>
+
+    <!-- ADMINISTRATOR PANEL -->
+    <div class="container" id="adminPanel" style="display: none;">
+        <button class="back-btn" onclick="closeAdminPanel()">← Back to Home</button>
+        <h1>Admin Dashboard</h1>
+        <p class="subtitle">Manage department tasks and custom configurations</p>
+        
+        <div class="info-box">
+            Configure task lists and custom JavaScript upload scripts for each specific department.
+        </div>
+
+        <div class="form-group">
+            <label for="adminDeptSelect">Select Department to Configure:</label>
+            <select id="adminDeptSelect" onchange="loadAdminDataForDept()" style="padding:14px 16px; border:1.5px solid var(--border-color); border-radius:12px; background:#F8FAFC; width:100%; font-size:14px; outline:none;">
+                <option value="FB Service">FB Service</option>
+                <option value="FB Kitchen">FB Kitchen</option>
+                <option value="Front Office">Front Office</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Security">Security</option>
+                <option value="Spa">Spa</option>
+                <option value="Housekeeping">Housekeeping</option>
+                <option value="Finance">Finance</option>
+                <option value="People & Culture">People & Culture</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Template Format:</label>
+            <a href="#" class="download-template-btn" onclick="downloadTemplate(event)">📥 Download Excel Template (.xlsx)</a>
+        </div>
+
+        <div class="form-group">
+            <label>Upload Task Excel File:</label>
+            <div class="file-upload-box">
+                <small style="display:block; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">
+                    Column Structure (No Header):<br>
+                    <strong>Column A:</strong> Category (Music/Video/News) | <strong>Column B:</strong> URL Link | <strong>Column C:</strong> Instruction
+                </small>
+                <input type="file" id="excelFileInput" accept=".xlsx, .xls" onchange="handleExcelUpload(event)">
+            </div>
+            <p id="uploadStatus" style="font-size: 13px; margin-top: 8px; color: var(--success); font-weight: 600;"></p>
+        </div>
+
+        <div class="form-group">
+            <label for="adminJsInput">Custom Upload JavaScript (Optional):</label>
+            <small style="display:block; color: var(--text-muted); margin-bottom: 5px;">Leave empty to use the standard direct Google Drive upload function.</small>
+            <textarea id="adminJsInput" rows="4" placeholder="// Leave blank for standard upload"></textarea>
+        </div>
+
+        <button onclick="saveAdminData()">Save Department Changes</button>
+    </div>
+
+    <!-- FIXED FOOTER ELEMENTS -->
+    <div class="footer-credit">Created by AI | Prompt by People & Culture Grand Seminyak Bali</div>
+    <a href="#" class="admin-link-btn" onclick="openAdminLogin(event)">🔐 Admin Login</a>
+
+    <!-- TASK MODAL POPUP -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <h2>Your Assigned Task</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: -5px;">Hello, <span id="userNameDisplay" style="font-weight: 600; color: var(--text-main);"></span> (<span id="userDeptDisplay"></span>)</p>
+            
+            <div class="task-detail">
+                <p style="margin-top:0;"><strong>Task Category:</strong> <span id="taskType" style="color: var(--accent); font-weight: 600;"></span></p>
+                
+                <!-- Media / News Container Area -->
+                <div id="mediaContainer" class="media-container"></div>
+
+                <p style="margin-bottom: 6px;"><strong>Instructions:</strong></p>
+                <p id="taskInstruction" style="font-style: italic; background: white; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); margin: 0; color: #334155;"></p>
+            </div>
+
+            <!-- DIRECT UPLOAD SECTION -->
+            <div class="upload-section">
+                <p style="margin-top: 0; font-weight: 600; font-size: 14px; color: var(--primary-bg);">📤 Upload Your Assignment File:</p>
+                <input type="file" id="taskFileToUpload" style="background: white; margin-bottom: 12px; padding: 10px; border-radius: 8px;">
+                <button type="button" onclick="executeUploadTask()" id="uploadBtn" style="background-color: var(--success); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);">Submit Task Now</button>
+                <p id="uploadProgress" style="font-size: 13px; margin-top: 10px; font-weight: 600; color: var(--accent);"></p>
+            </div>
+
+            <button class="close-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- CUSTOM ALERT / PROMPT MODAL -->
+    <div class="modal" id="customAlertModal">
+        <div class="modal-content">
+            <h2 id="customAlertTitle" style="font-size: 18px; margin-bottom: 15px;">Notification</h2>
+            <p id="customAlertMessage"></p>
+            <input type="password" id="customAlertInput" style="display: none;">
+            <div class="custom-alert-btn-group">
+                <button id="customAlertCancelBtn" style="background-color: #64748B; display: none;" onclick="resolveCustomAlert(false)">Cancel</button>
+                <button id="customAlertOkBtn" onclick="resolveCustomAlert(true)">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx9d1a8u2-VN-rBNWSA5Qk9MVKBNSel2uxLiZIHZRUFU0OHsB5XYeA8lsvXhkWEwexcnQ/exec';
+
+        let globalDatabase = JSON.parse(localStorage.getItem('learningCenterDeptUploadDB')) || {
+            "FB Service": {
+                tasks: [
+                    { type: "News", url: "https://example.com/berita-hotel", instruction: "Read the article below and write a brief summary." }
+                ],
+                customUploadJs: ""
+            }
+        };
+
+        let userTaskHistory = JSON.parse(localStorage.getItem('learningCenterHistory')) || {};
+        let tempExcelTasks = null;
+        let activeUserName = "";
+        let activeDepartment = "";
+        let alertCallback = null;
+
+        // Custom Smooth Select Logic
+        const customSelect = document.getElementById('customSelectTrigger');
+        const customOptions = document.getElementById('customOptionsList');
+        const hiddenInput = document.getElementById('department');
+
+        customSelect.addEventListener('click', (e) => {
+            e.stopPropagation();
+            customSelect.classList.toggle('open');
+            customOptions.classList.toggle('open');
+        });
+
+        document.querySelectorAll('.custom-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const value = option.getAttribute('data-value');
+                const text = option.textContent;
+                
+                customSelect.textContent = text;
+                customSelect.classList.add('selected');
+                hiddenInput.value = value;
+                
+                document.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected-opt'));
+                option.classList.add('selected-opt');
+                
+                customSelect.classList.remove('open');
+                customOptions.classList.remove('open');
+            });
+        });
+
+        window.addEventListener('click', () => {
+            customSelect.classList.remove('open');
+            customOptions.classList.remove('open');
+        });
+
+        // Custom Popup Replacements for alert() and prompt() with smooth timing
+        function showCustomAlert(message, title = "Notification") {
+            return new Promise((resolve) => {
+                document.getElementById('customAlertTitle').textContent = title;
+                document.getElementById('customAlertMessage').textContent = message;
+                const inputField = document.getElementById('customAlertInput');
+                inputField.style.display = 'none';
+                inputField.type = 'text';
+                document.getElementById('customAlertCancelBtn').style.display = 'none';
+                
+                alertCallback = resolve;
+                const modal = document.getElementById('customAlertModal');
+                modal.style.display = 'flex';
+                requestAnimationFrame(() => modal.classList.add('active'));
+            });
+        }
+
+        function showCustomPrompt(message, title = "Input Required") {
+            return new Promise((resolve) => {
+                document.getElementById('customAlertTitle').textContent = title;
+                document.getElementById('customAlertMessage').textContent = message;
+                const inputField = document.getElementById('customAlertInput');
+                inputField.value = "";
+                inputField.type = 'password'; // Membuat input password tersembunyi (titik-titik)
+                inputField.style.display = 'block';
+                document.getElementById('customAlertCancelBtn').style.display = 'block';
+                
+                alertCallback = resolve;
+                const modal = document.getElementById('customAlertModal');
+                modal.style.display = 'flex';
+                requestAnimationFrame(() => {
+                    modal.classList.add('active');
+                    inputField.focus();
+                });
+            });
+        }
+
+        function resolveCustomAlert(isOk) {
+            const modal = document.getElementById('customAlertModal');
+            const inputField = document.getElementById('customAlertInput');
+            let value = isOk ? inputField.value : null;
+
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                if (alertCallback) {
+                    let cb = alertCallback;
+                    alertCallback = null;
+                    cb(inputField.style.display === 'block' ? value : isOk);
+                }
+            }, 500);
+        }
+
+        async function openAdminLogin(e) {
+            e.preventDefault();
+            let password = await showCustomPrompt("Please enter Administrator password:", "Admin Authentication");
+            if (password === "admin123") {
+                const mainPage = document.getElementById('userMainPage');
+                const adminPanel = document.getElementById('adminPanel');
+                
+                mainPage.style.animation = 'smoothExit 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+                setTimeout(() => {
+                    mainPage.style.display = 'none';
+                    adminPanel.style.display = 'block';
+                    adminPanel.style.animation = 'smoothEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+                    loadAdminDataForDept();
+                }, 450);
+            } else if (password !== null) {
+                await showCustomAlert("Incorrect password!", "Access Denied");
+            }
+        }
+
+        function closeAdminPanel() {
+            const adminPanel = document.getElementById('adminPanel');
+            const mainPage = document.getElementById('userMainPage');
+            
+            adminPanel.style.animation = 'smoothExit 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+            setTimeout(() => {
+                adminPanel.style.display = 'none';
+                mainPage.style.display = 'block';
+                mainPage.style.animation = 'smoothEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+            }, 450);
+        }
+
+        function loadAdminDataForDept() {
+            const dept = document.getElementById('adminDeptSelect').value;
+            if (!globalDatabase[dept]) {
+                globalDatabase[dept] = { tasks: [], customUploadJs: "" };
+            }
+            document.getElementById('excelFileInput').value = "";
+            document.getElementById('adminJsInput').value = globalDatabase[dept].customUploadJs || "";
+            tempExcelTasks = null;
+            
+            const count = globalDatabase[dept].tasks ? globalDatabase[dept].tasks.length : 0;
+            document.getElementById('uploadStatus').textContent = `System status: ${count} tasks loaded for this department.`;
+        }
+
+        function downloadTemplate(e) {
+            e.preventDefault();
+            const wsData = [
+                ["Music", "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "Listen to this music track with full attention."],
+                ["Video", "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "Watch the entire training video tutorial."],
+                ["News", "https://example.com/berita-hotel", "Read the news article and submit your review."]
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Task Template");
+            XLSX.writeFile(wb, "Learning_Center_Task_Template.xlsx");
+        }
+
+        function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    let parsedTasks = [];
+                    for (let i = 0; i < jsonRows.length; i++) {
+                        let row = jsonRows[i];
+                        if (row && row.length >= 3) {
+                            parsedTasks.push({
+                                type: String(row[0] || "").trim(),
+                                url: String(row[1] || "").trim(),
+                                instruction: String(row[2] || "").trim()
+                            });
+                        }
+                    }
+
+                    if (parsedTasks.length > 0) {
+                        tempExcelTasks = parsedTasks;
+                        document.getElementById('uploadStatus').textContent = `Successfully parsed ${parsedTasks.length} rows! Click "Save Department Changes" below.`;
+                    } else {
+                        await showCustomAlert("The Excel file is empty or formatted incorrectly.", "Upload Warning");
+                    }
+                } catch (error) {
+                    await showCustomAlert("An error occurred while reading the Excel file.", "Error");
+                    console.error(error);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function saveAdminData() {
+            const dept = document.getElementById('adminDeptSelect').value;
+            const customJsCode = document.getElementById('adminJsInput').value;
+
+            if (!globalDatabase[dept]) {
+                globalDatabase[dept] = { tasks: [], customUploadJs: "" };
+            }
+
+            if (tempExcelTasks !== null) {
+                globalDatabase[dept].tasks = tempExcelTasks;
+            }
+
+            globalDatabase[dept].customUploadJs = customJsCode;
+
+            localStorage.setItem('learningCenterDeptUploadDB', JSON.stringify(globalDatabase));
+            await showCustomAlert(`Successfully saved configuration for ${dept}!`, "Success");
+            loadAdminDataForDept();
+        }
+
+        function getEmbedUrl(url) {
+            if (!url) return '';
+            let videoId = '';
+            if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1]?.split('?')[0];
+            } else if (url.includes('watch?v=')) {
+                videoId = url.split('watch?v=')[1]?.split('&')[0];
+            } else if (url.includes('embed/')) {
+                return url;
+            }
+            if (videoId) {
+                return `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1`;
+            }
+            return url;
+        }
+
+        document.getElementById('learningForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            activeUserName = document.getElementById('fullName').value.trim();
+            activeDepartment = hiddenInput.value;
+
+            if (!activeDepartment) {
+                await showCustomAlert("Please select your department first!", "Selection Required");
+                return;
+            }
+
+            const deptData = globalDatabase[activeDepartment];
+
+            if (!deptData || !deptData.tasks || deptData.tasks.length === 0) {
+                await showCustomAlert(`Sorry, task data for ${activeDepartment} has not been uploaded by the Administrator yet.`, "Notice");
+                return;
+            }
+
+            if (!userTaskHistory[activeUserName]) {
+                userTaskHistory[activeUserName] = [];
+            }
+
+            let availableTasks = deptData.tasks.filter(task => !userTaskHistory[activeUserName].includes(task.url));
+
+            if (availableTasks.length === 0) {
+                userTaskHistory[activeUserName] = [];
+                availableTasks = deptData.tasks;
+            }
+
+            const randomIndex = Math.floor(Math.random() * availableTasks.length);
+            const selectedTask = availableTasks[randomIndex];
+
+            userTaskHistory[activeUserName].push(selectedTask.url);
+            localStorage.setItem('learningCenterHistory', JSON.stringify(userTaskHistory));
+
+            document.getElementById('userNameDisplay').textContent = activeUserName;
+            document.getElementById('userDeptDisplay').textContent = activeDepartment;
+            document.getElementById('taskType').textContent = selectedTask.type || "General";
+            document.getElementById('taskInstruction').textContent = selectedTask.instruction;
+            document.getElementById('taskFileToUpload').value = "";
+            document.getElementById('uploadProgress').textContent = "";
+
+            const mediaContainer = document.getElementById('mediaContainer');
+            mediaContainer.innerHTML = '';
+
+            let cat = (selectedTask.type || "").toLowerCase();
+            let rawUrl = selectedTask.url || "";
+
+            if (cat.includes('video') || rawUrl.includes('youtube') || rawUrl.includes('youtu.be')) {
+                let embedLink = getEmbedUrl(rawUrl);
+                mediaContainer.innerHTML = `
+                    <iframe src="${embedLink}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <a href="${rawUrl}" target="_blank" class="fallback-link">🔗 If video fails to load, click here to watch directly on YouTube</a>
+                `;
+            } else if (cat.includes('music') || cat.includes('audio') || rawUrl.endsWith('.mp3') || rawUrl.endsWith('.wav')) {
+                mediaContainer.innerHTML = `<audio controls src="${rawUrl}"></audio>`;
+            } else if (cat.includes('news') || cat.includes('berita') || cat.includes('artikel')) {
+                mediaContainer.innerHTML = `
+                    <div class="news-card">
+                        <h3>📰 Article / News Task</h3>
+                        <p>Link: ${rawUrl}</p>
+                        <a href="${rawUrl}" target="_blank" class="news-btn">📖 Open Article Now</a>
+                    </div>
+                `;
+            } else {
+                mediaContainer.innerHTML = `<a href="${rawUrl}" target="_blank" style="display:block; padding:12px; background:var(--accent); color:white; text-align:center; border-radius:10px; text-decoration:none; font-weight:600;">Open Learning Material</a>`;
+            }
+
+            const modal = document.getElementById('taskModal');
+            modal.style.display = 'flex';
+            requestAnimationFrame(() => modal.classList.add('active'));
+        });
+
+        function executeUploadTask() {
+            const deptData = globalDatabase[activeDepartment];
+            
+            if (deptData && deptData.customUploadJs && deptData.customUploadJs.trim() !== "") {
+                try {
+                    const customUploadFunc = new Function('userName', 'department', 'APPS_SCRIPT_URL', deptData.customUploadJs);
+                    let result = customUploadFunc(activeUserName, activeDepartment, APPS_SCRIPT_URL);
+                    if (result === false) return; 
+                    return; 
+                } catch (err) {
+                    console.error("Custom upload JavaScript error:", err);
+                    showCustomAlert("An error occurred in the custom department script.", "Script Error");
+                    return;
+                }
+            }
+
+            defaultUploadTask();
+        }
+
+        async function defaultUploadTask() {
+            const fileInput = document.getElementById('taskFileToUpload');
+            const progressText = document.getElementById('uploadProgress');
+
+            if (fileInput.files.length === 0) {
+                await showCustomAlert("Please select a file to upload first!", "Missing File");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            progressText.textContent = "Uploading assignment... Please wait...";
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async function () {
+                const encodedData = reader.result.split(',')[1];
+                
+                const formData = new URLSearchParams();
+                formData.append("data", encodedData);
+                formData.append("filename", file.name);
+                formData.append("mimeType", file.type);
+                formData.append("nama", activeUserName);
+                formData.append("departemen", activeDepartment);
+
+                fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                })
+                .then(async () => {
+                    progressText.textContent = "✅ File successfully uploaded and saved!";
+                    await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
+                    fileInput.value = "";
+                })
+                .catch(async (error) => {
+                    console.error(error);
+                    progressText.textContent = "❌ Upload failed. Please try again.";
+                    await showCustomAlert("Upload failed. Please try again.", "Error");
+                });
+            };
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('taskModal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.getElementById('mediaContainer').innerHTML = '';
+            }, 500);
+        }
+    </script>
+</body>
+</html>
