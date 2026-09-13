@@ -636,7 +636,7 @@
                 <div id="mediaContainer" class="media-container"></div>
 
                 <p style="margin-bottom: 6px;"><strong>Instructions:</strong></p>
-                <p id="taskInstruction" style="font-style: italic; background: white; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); margin: 0; color: #334155;"></p>
+                <p id="taskInstruction" style="font-style: italic; font-weight: 400; line-height: 1.6; white-space: pre-wrap; background: white; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); margin: 0; color: #334155;"></p>
             </div>
 
             <!-- DIRECT UPLOAD SECTION -->
@@ -668,7 +668,7 @@
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwHbJLhMfYWwui5Pg5qCjxH2RC15RuM69r-tJkENHNCErQcUex9iWn0-1AH1jBrtlt1qQ/exec';
 
         let userTaskHistory = JSON.parse(localStorage.getItem('learningCenterHistory')) || {};
-        let liveDeptTasks = {}; // Menyimpan data tugas online yang sudah dipre-load
+        let liveDeptTasks = {}; 
         let tempExcelTasks = null;
         let activeUserName = "";
         let activeDepartment = "";
@@ -700,7 +700,6 @@
                 customSelect.classList.remove('open');
                 customOptions.classList.remove('open');
 
-                // Begitu departemen dipilih, otomatis ambil data online secara background (Preload kilat)
                 await preloadDepartmentData(value);
             });
         });
@@ -710,9 +709,8 @@
             customOptions.classList.remove('open');
         });
 
-        // Fungsi Preload Online di background saat departemen diklik/dipilih
         async function preloadDepartmentData(dept) {
-            if (liveDeptTasks[dept]) return; // Jika sudah ada, lewati
+            if (liveDeptTasks[dept]) return; 
             try {
                 const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&dept=${encodeURIComponent(dept)}`);
                 const deptData = await response.json();
@@ -724,7 +722,6 @@
             }
         }
 
-        // Custom Popup Replacements for alert() and prompt()
         function showCustomAlert(message, title = "Notification") {
             return new Promise((resolve) => {
                 document.getElementById('customAlertTitle').textContent = title;
@@ -905,7 +902,7 @@
                 });
                 const result = await response.json();
                 if (result.status === "success") {
-                    delete liveDeptTasks[dept]; // Reset memori online sementara untuk departemen ini
+                    delete liveDeptTasks[dept]; 
                     await showCustomAlert(`Successfully saved configuration for ${dept} to online database!`, "Success");
                     loadAdminDataForDept();
                 } else {
@@ -953,7 +950,6 @@
             btnText.textContent = 'Fetching Online Task...';
 
             try {
-                // Ambil data online (jika belum ter-preload, ambil detik ini secara online langsung)
                 let deptTasks = liveDeptTasks[activeDepartment];
                 if (!deptTasks) {
                     const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&dept=${encodeURIComponent(activeDepartment)}`);
@@ -1059,21 +1055,20 @@
                 formData.append("nama", activeUserName);
                 formData.append("departemen", activeDepartment);
 
-                fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: formData
-                })
-                .then(async () => {
+                try {
+                    await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
                     progressText.textContent = "✅ File successfully uploaded and saved!";
                     await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
                     fileInput.value = "";
-                })
-                .catch(async (error) => {
+                } catch (error) {
                     console.error(error);
                     progressText.textContent = "❌ Upload failed. Please try again.";
                     await showCustomAlert("Upload failed. Please try again.", "Error");
-                });
+                }
             };
         }
 
