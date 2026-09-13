@@ -636,7 +636,8 @@
                 <div id="mediaContainer" class="media-container"></div>
 
                 <p style="margin-bottom: 6px;"><strong>Instructions:</strong></p>
-                <p id="taskInstruction" style="font-style: italic; font-weight: 400; line-height: 1.6; white-space: pre-wrap; background: white; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); margin: 0; color: #334155;"></p>
+                <!-- Instruksi mendukung tag HTML (seperti <i> untuk italic, <b> untuk bold, dsb.) -->
+                <p id="taskInstruction" style="font-weight: 400; line-height: 1.6; white-space: pre-line; background: white; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); margin: 0; color: #334155;"></p>
             </div>
 
             <!-- DIRECT UPLOAD SECTION -->
@@ -665,7 +666,7 @@
     </div>
 
     <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwHbJLhMfYWwui5Pg5qCjxH2RC15RuM69r-tJkENHNCErQcUex9iWn0-1AH1jBrtlt1qQ/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw6rGI_F-_HlPT7Zg2w0KgLJ99F7_b8wmHaTaSYTNRK8vIrmMI9o846YjTIwlA6y10psA/exec';
 
         let userTaskHistory = JSON.parse(localStorage.getItem('learningCenterHistory')) || {};
         let liveDeptTasks = {}; 
@@ -889,16 +890,20 @@
 
             document.getElementById('uploadStatus').textContent = "Saving to Google Spreadsheet online... Please wait...";
 
-            const formData = new URLSearchParams();
-            formData.append("action", "saveAdminConfig");
-            formData.append("departemen", dept);
-            formData.append("tasks", JSON.stringify(tempExcelTasks));
-            formData.append("customJs", customJsCode);
+            const payload = {
+                action: "saveAdminConfig",
+                departemen: dept,
+                tasks: JSON.stringify(tempExcelTasks),
+                customJs: customJsCode
+            };
 
             try {
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
-                    body: formData
+                    body: JSON.stringify(payload),
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    }
                 });
                 const result = await response.json();
                 if (result.status === "success") {
@@ -983,7 +988,10 @@
                 document.getElementById('userNameDisplay').textContent = activeUserName;
                 document.getElementById('userDeptDisplay').textContent = activeDepartment;
                 document.getElementById('taskType').textContent = selectedTask.type || "General";
-                document.getElementById('taskInstruction').textContent = selectedTask.instruction;
+                
+                // Menerapkan innerHTML agar tag format HTML (seperti <i>, <b>) dirender sesuai input Excel
+                document.getElementById('taskInstruction').innerHTML = selectedTask.instruction || "";
+                
                 document.getElementById('taskFileToUpload').value = "";
                 document.getElementById('uploadProgress').textContent = "";
 
@@ -1048,17 +1056,21 @@
             reader.onload = async function () {
                 const encodedData = reader.result.split(',')[1];
                 
-                const formData = new URLSearchParams();
-                formData.append("data", encodedData);
-                formData.append("filename", file.name);
-                formData.append("mimeType", file.type);
-                formData.append("nama", activeUserName);
-                formData.append("departemen", activeDepartment);
+                const payload = {
+                    data: encodedData,
+                    filename: file.name,
+                    mimeType: file.type,
+                    nama: activeUserName,
+                    departemen: activeDepartment
+                };
 
                 try {
                     await fetch(APPS_SCRIPT_URL, {
                         method: 'POST',
-                        body: formData
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "text/plain;charset=utf-8"
+                        }
                     });
                     
                     progressText.textContent = "✅ File successfully uploaded and saved!";
