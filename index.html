@@ -661,7 +661,7 @@
 
             <!-- DIRECT UPLOAD SECTION -->
             <div class="upload-section">
-                <p style="margin-top: 0; font-weight: 600; font-size: 14px; color: var(--primary-bg);">📤 Upload Your Assignment File (Max 35 MB):</p>
+                <p style="margin-top: 0; font-weight: 600; font-size: 14px; color: var(--primary-bg);">📤 Upload Your Assignment File (Max 50 MB):</p>
                 <input type="file" id="taskFileToUpload" style="background: white; margin-bottom: 12px; padding: 10px; border-radius: 8px;">
                 <button type="button" onclick="executeUploadTask()" id="uploadBtn" style="background-color: var(--success); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);">Submit Task Now</button>
                 
@@ -1065,7 +1065,7 @@
             defaultUploadTask();
         }
 
-        // FUNGSI UPLOAD 1 FILE UTUH SEKALIGUS (MAX 35 MB FILE ASLI AGAR AMAN DARI LIMIT BASE64 50 MB)
+        // SISTEM CHUNK AMAN HINGGA 50 MB DENGAN PENGGABUNGAN OTOMATIS DI SERVER MENJADI 1 FILE UTUH
         async function defaultUploadTask() {
             const fileInput = document.getElementById('taskFileToUpload');
             const progressText = document.getElementById('uploadProgress');
@@ -1079,10 +1079,10 @@
             }
 
             const file = fileInput.files[0];
-            const maxSizeInBytes = 35 * 1024 * 1024; // 35 MB (Batas aman murni sebelum kena limit 50 MB Google Apps Script setelah jadi Base64)
+            const maxSizeInBytes = 50 * 1024 * 1024; // Batas mutlak 50 MB murni
 
             if (file.size > maxSizeInBytes) {
-                await showCustomAlert("File size exceeds the 35 MB limit (maximum size for single upload due to server limitations). Please choose a smaller file.", "File Too Large");
+                await showCustomAlert("File size exceeds the 50 MB limit. Please choose a smaller file.", "File Too Large");
                 return;
             }
 
@@ -1091,72 +1091,91 @@
             progressBarFill.style.width = '0%';
             uploadBtn.disabled = true;
 
+            const chunkSize = 2 * 1024 * 1024; // 2 MB per bagian agar sangat stabil di jaringan dan server Google
+            const totalChunks = Math.ceil(file.size / chunkSize);
+            const uploadId = 'up_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+
             try {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                
-                reader.onload = function() {
-                    progressText.textContent = "Sending file to server (0%)...";
-                    const base64Data = reader.result.split(',')[1];
+                // Tahap 1: Kirim pecahan file satu per satu dengan indikator progress bar real-time (0% - 95%)
+                for (let i = 0; i < totalChunks; i++) {
+                    const start = i * chunkSize;
+                    const end = Math.min(file.size, start + chunkSize);
+                    const chunk = file.slice(start, end);
+
+                    const base64Chunk = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result.split(',')[1]);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(chunk);
+                    });
 
                     const payload = {
-                        action: "uploadLargeFile",
+                        action: "uploadChunkedFile",
+                        uploadId: uploadId,
+                        chunkIndex: i,
+                        totalChunks: totalChunks,
                         filename: file.name,
                         mimeType: file.type,
                         nama: activeUserName,
                         departemen: activeDepartment,
-                        fileData: base64Data
+                        fileData: base64Chunk
                     };
 
-                    const xhr = new XMLHttpRequest();
-                    xhr.open("POST", APPS_SCRIPT_URL, true);
-                    xhr.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
-
-                    // Memantau progress pengiriman file secara utuh dari 0 hingga 100%
-                    xhr.upload.onprogress = function(event) {
-                        if (event.lengthComputable) {
-                            const percentComplete = Math.round((event.loaded / event.total) * 100);
-                            progressBarFill.style.width = percentComplete + '%';
-                            progressText.textContent = `Uploading file... ${percentComplete}%`;
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "text/plain;charset=utf-8"
                         }
-                    };
+                    });
 
-                    xhr.onload = async function() {
-                        uploadBtn.disabled = false;
-                        if (xhr.status === 200) {
-                            try {
-                                const result = JSON.parse(xhr.responseText);
-                                if (result.status === "success") {
-                                    progressBarFill.style.width = '100%';
-                                    progressText.textContent = "✅ File successfully uploaded and saved!";
-                                    await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
-                                    fileInput.value = "";
-                                } else {
-                                    throw new Error(result.message || "Server error");
-                                }
-                            } catch (parseError) {
-                                progressText.textContent = "❌ Upload failed.";
-                                await showCustomAlert("Failed to parse response from server.", "Error");
-                            }
-                        } else {
-                            progressText.textContent = "❌ Upload failed.";
-                            await showCustomAlert("Server returned status: " + xhr.status, "Error");
-                        }
-                    };
+                    const result = await response.json();
+                    if (result.status !== "success") {
+                        throw new Error(result.message || "Failed during chunk upload.");
+                    }
 
-                    xhr.onerror = async function() {
-                        uploadBtn.disabled = false;
-                        progressText.textContent = "❌ Network error during upload.";
-                        await showCustomAlert("A network error occurred. File size might be too large for direct single request.", "Error");
-                    };
+                    const percentComplete = Math.round(((i + 1) / totalChunks) * 90);
+                    progressBarFill.style.width = percentComplete + '%';
+                    progressText.textContent = `Uploading file... ${percentComplete}%`;
+                }
 
-                    xhr.send(JSON.stringify(payload));
+                // Tahap 2: Kirim perintah ke Google Apps Script untuk menggabungkan seluruh bagian menjadi 1 file utuh
+                progressText.textContent = "Merging file parts on server... 95%";
+                progressBarFill.style.width = '95%';
+
+                const mergePayload = {
+                    action: "mergeChunks",
+                    uploadId: uploadId,
+                    totalChunks: totalChunks,
+                    filename: file.name,
+                    mimeType: file.type,
+                    nama: activeUserName,
+                    departemen: activeDepartment
                 };
+
+                const mergeResponse = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(mergePayload),
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    }
+                });
+
+                const mergeResult = await mergeResponse.json();
+                if (mergeResult.status !== "success") {
+                    throw new Error(mergeResult.message || "Failed to merge file chunks.");
+                }
+
+                progressBarFill.style.width = '100%';
+                progressText.textContent = "✅ File successfully uploaded and saved!";
+                await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
+                fileInput.value = "";
 
             } catch (error) {
                 console.error("Upload error details:", error);
                 progressText.textContent = "❌ Upload failed.";
                 await showCustomAlert("Upload failed. Error: " + error.message, "Error");
+            } finally {
                 uploadBtn.disabled = false;
             }
         }
