@@ -44,29 +44,16 @@
             box-sizing: border-box;
             animation: smoothEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             position: relative;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
         }
 
         @keyframes smoothEntrance {
-            0% {
-                opacity: 0;
-                transform: translateY(35px) scale(0.95);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            0% { opacity: 0; transform: translateY(35px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         @keyframes smoothExit {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-25px) scale(0.95);
-            }
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-25px) scale(0.95); }
         }
 
         h1 {
@@ -97,7 +84,6 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--text-muted);
-            transition: color 0.3s ease;
         }
 
         input, textarea {
@@ -110,22 +96,16 @@
             color: var(--text-main);
             box-sizing: border-box;
             outline: none;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        input:hover, textarea:hover {
-            border-color: #94A3B8;
-            background-color: #FFFFFF;
+            transition: all 0.4s ease;
         }
 
         input:focus, textarea:focus {
             border-color: var(--accent);
             background-color: #FFFFFF;
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-            transform: translateY(-2px);
         }
 
-        /* CUSTOM SMOOTH SELECT STYLES */
+        /* CUSTOM SELECT STYLES */
         .custom-select-wrapper {
             position: relative;
             user-select: none;
@@ -144,24 +124,11 @@
             background-color: #F8FAFC;
             color: var(--text-muted);
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.4s ease;
         }
 
-        .custom-select.selected {
-            color: var(--text-main);
-        }
-
-        .custom-select:hover {
-            border-color: #94A3B8;
-            background-color: #FFFFFF;
-        }
-
-        .custom-select.open {
-            border-color: var(--accent);
-            background-color: #FFFFFF;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-        }
-
+        .custom-select.selected { color: var(--text-main); }
+        .custom-select.open { border-color: var(--accent); background-color: #FFFFFF; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12); }
         .custom-select::after {
             content: '';
             width: 10px;
@@ -169,16 +136,11 @@
             border-right: 2px solid var(--text-muted);
             border-bottom: 2px solid var(--text-muted);
             transform: rotate(45deg);
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.3s ease;
             margin-left: 10px;
             margin-top: -3px;
         }
-
-        .custom-select.open::after {
-            transform: rotate(-135deg);
-            border-color: var(--accent);
-            margin-top: 3px;
-        }
+        .custom-select.open::after { transform: rotate(-135deg); border-color: var(--accent); margin-top: 3px; }
 
         .custom-options {
             position: absolute;
@@ -194,36 +156,21 @@
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px) scale(0.98);
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.35s ease;
             max-height: 250px;
             overflow-y: auto;
         }
 
-        .custom-options.open {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0) scale(1);
-        }
-
+        .custom-options.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
         .custom-option {
             padding: 12px 16px;
             font-size: 14px;
             color: var(--text-main);
             cursor: pointer;
-            transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+            transition: background-color 0.2s ease, padding-left 0.2s ease;
         }
-
-        .custom-option:hover {
-            background-color: #EFF6FF;
-            color: var(--accent);
-            padding-left: 20px;
-        }
-
-        .custom-option.selected-opt {
-            background-color: #EFF6FF;
-            color: var(--accent);
-            font-weight: 600;
-        }
+        .custom-option:hover { background-color: #EFF6FF; color: var(--accent); padding-left: 20px; }
+        .custom-option.selected-opt { background-color: #EFF6FF; color: var(--accent); font-weight: 600; }
 
         button {
             width: 100%;
@@ -235,25 +182,15 @@
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.35s ease;
             box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
         }
+        button:hover { background-color: var(--accent-hover); transform: translateY(-2px); }
 
-        button:hover {
-            background-color: var(--accent-hover);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
-        }
-
-        button:active {
-            transform: translateY(-1px);
-        }
-
-        /* Loading Spinner Styles */
         .spinner {
             width: 18px;
             height: 18px;
@@ -263,270 +200,65 @@
             animation: spin 0.8s linear infinite;
             display: none;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Fixed Footer Credits & Admin Button */
-        .footer-credit {
-            position: fixed;
-            bottom: 15px;
-            left: 20px;
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            z-index: 10;
-        }
-
+        .footer-credit { position: fixed; bottom: 15px; left: 20px; font-size: 11px; color: var(--text-muted); font-weight: 500; z-index: 10; }
         .admin-link-btn {
-            position: fixed;
-            bottom: 15px;
-            right: 20px;
-            background: white;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 8px 14px;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
-            border: 1px solid var(--border-color);
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 10;
+            position: fixed; bottom: 15px; right: 20px; background: white; color: var(--text-muted);
+            text-decoration: none; font-size: 12px; font-weight: 600; padding: 8px 14px;
+            border-radius: 20px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08); border: 1px solid var(--border-color); z-index: 10;
         }
+        .admin-link-btn:hover { color: var(--accent); border-color: var(--accent); }
 
-        .admin-link-btn:hover {
-            color: var(--accent);
-            border-color: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
-        }
-
-        /* Ultra Smooth Modal Styles */
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(15, 23, 42, 0);
-            backdrop-filter: blur(0px);
-            -webkit-backdrop-filter: blur(0px);
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: background-color 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
-                        backdrop-filter 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
-                        opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
-                        visibility 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(15, 23, 42, 0); backdrop-filter: blur(0px);
+            justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;
+            z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.5s ease;
         }
-
-        .modal.active {
-            opacity: 1;
-            visibility: visible;
-            background-color: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
+        .modal.active { opacity: 1; visibility: visible; background-color: rgba(15, 23, 42, 0.65); backdrop-filter: blur(10px); }
         .modal-content {
-            background-color: white;
-            padding: 35px;
-            border-radius: 24px;
-            max-width: 580px;
+            background-color: white; padding: 35px; border-radius: 24px; max-width: 580px; width: 100%;
+            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.35); max-height: 90vh; overflow-y: auto;
+            transform: translateY(40px) scale(0.92); opacity: 0; transition: all 0.5s ease;
+        }
+        .modal.active .modal-content { transform: translateY(0) scale(1); opacity: 1; }
+
+        .task-detail { background-color: #F8FAFC; border: 1px solid var(--border-color); padding: 20px; border-radius: 14px; margin: 20px 0; }
+        .close-btn { background-color: #64748B; margin-top: 15px; }
+        .back-btn { background-color: #64748B; margin-bottom: 20px; width: auto; padding: 10px 18px; font-size: 13px; }
+        .info-box { background-color: #EFF6FF; border: 1px solid #BFDBFE; padding: 14px; border-radius: 12px; font-size: 13px; color: #1E40AF; margin-bottom: 20px; }
+        .file-upload-box { border: 2px dashed #CBD5E1; padding: 24px; border-radius: 12px; text-align: center; background: #F8FAFC; }
+        .download-template-btn { display: inline-block; background-color: var(--success); color: white; padding: 10px 16px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: 600; margin-bottom: 15px; }
+        .media-container { margin-top: 12px; margin-bottom: 15px; width: 100%; }
+        .media-container iframe, .media-container video, .media-container audio { width: 100%; border-radius: 10px; border: none; }
+        .media-container iframe { height: 300px; }
+        .news-card { background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
+        .news-btn { display: inline-block; background-color: var(--accent); color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .fallback-link { display: block; margin-top: 10px; font-size: 13px; color: var(--accent); text-align: center; text-decoration: underline; }
+        .upload-section { background: #F1F5F9; border: 1px solid var(--border-color); padding: 20px; border-radius: 14px; margin-top: 20px; text-align: center; }
+
+        /* PROGRESS BAR STYLES */
+        .progress-bar-container {
             width: 100%;
-            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.35);
-            max-height: 90vh;
-            overflow-y: auto;
-            box-sizing: border-box;
-            transform: translateY(40px) scale(0.92);
-            opacity: 0;
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .modal.active .modal-content {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-        }
-
-        .modal-content h2 {
-            margin-top: 0;
-            color: var(--primary-bg);
-            font-size: 22px;
-            letter-spacing: -0.5px;
-        }
-
-        .task-detail {
-            background-color: #F8FAFC;
-            border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 14px;
-            margin: 20px 0;
-        }
-
-        .close-btn {
-            background-color: #64748B;
-            margin-top: 15px;
-            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.2);
-        }
-        .close-btn:hover {
-            background-color: #475569;
-            box-shadow: 0 6px 16px rgba(100, 116, 139, 0.3);
-        }
-
-        #adminPanel {
+            background-color: #E2E8F0;
+            border-radius: 8px;
+            height: 10px;
+            margin-top: 12px;
+            overflow: hidden;
             display: none;
         }
-
-        .back-btn {
-            background-color: #64748B;
-            margin-bottom: 20px;
-            width: auto;
-            padding: 10px 18px;
-            font-size: 13px;
-            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.15);
-        }
-        .back-btn:hover {
-            background-color: #475569;
-        }
-
-        .info-box {
-            background-color: #EFF6FF;
-            border: 1px solid #BFDBFE;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 13px;
-            color: #1E40AF;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
-        .file-upload-box {
-            border: 2px dashed #CBD5E1;
-            padding: 24px;
-            border-radius: 12px;
-            text-align: center;
-            background: #F8FAFC;
-            transition: all 0.3s ease;
-        }
-        .file-upload-box:hover {
-            border-color: var(--accent);
-            background: #F1F5F9;
-        }
-
-        .download-template-btn {
-            display: inline-block;
-            background-color: var(--success);
-            color: white;
-            padding: 10px 16px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-        }
-        .download-template-btn:hover {
-            background-color: var(--success-hover);
-            transform: translateY(-2px);
-        }
-
-        .media-container {
-            margin-top: 12px;
-            margin-bottom: 15px;
-            width: 100%;
-        }
-        .media-container iframe, .media-container video, .media-container audio {
-            width: 100%;
-            border-radius: 10px;
-            border: none;
-        }
-        .media-container iframe {
-            height: 300px;
-        }
-
-        .news-card {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
-        }
-        .news-card h3 {
-            margin-top: 0;
-            color: var(--primary-bg);
-            font-size: 18px;
-        }
-        .news-card p {
-            font-size: 12px;
-            color: var(--text-muted);
-            word-break: break-all;
-            margin-bottom: 18px;
-        }
-        .news-btn {
-            display: inline-block;
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
             background-color: var(--accent);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-        }
-        .news-btn:hover {
-            background-color: var(--accent-hover);
-            transform: translateY(-2px);
+            transition: width 0.2s ease;
         }
 
-        .fallback-link {
-            display: block;
-            margin-top: 10px;
-            font-size: 13px;
-            color: var(--accent);
-            text-align: center;
-            text-decoration: underline;
-        }
-
-        .upload-section {
-            background: #F1F5F9;
-            border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 14px;
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        /* Custom Modern Alert/Prompt Modal */
-        #customAlertModal .modal-content {
-            max-width: 420px;
-            text-align: center;
-            padding: 30px;
-        }
-        #customAlertMessage {
-            font-size: 15px;
-            color: var(--text-main);
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
-        #customAlertInput {
-            margin-bottom: 20px;
-            -webkit-text-security: disc;
-        }
-        .custom-alert-btn-group {
-            display: flex;
-            gap: 10px;
-        }
+        #customAlertModal .modal-content { max-width: 420px; text-align: center; padding: 30px; }
+        #customAlertMessage { font-size: 15px; color: var(--text-main); margin-bottom: 25px; line-height: 1.5; }
+        #customAlertInput { margin-bottom: 20px; -webkit-text-security: disc; }
+        .custom-alert-btn-group { display: flex; gap: 10px; }
     </style>
 </head>
 <body>
@@ -573,9 +305,7 @@
         <h1>Admin Dashboard</h1>
         <p class="subtitle">Manage department tasks and custom configurations</p>
         
-        <div class="info-box">
-            Configure task lists and custom JavaScript upload scripts for each specific department.
-        </div>
+        <div class="info-box">Configure task lists and custom configurations for each specific department.</div>
 
         <div class="form-group">
             <label for="adminDeptSelect">Select Department to Configure:</label>
@@ -600,10 +330,6 @@
         <div class="form-group">
             <label>Upload Task Excel File:</label>
             <div class="file-upload-box">
-                <small style="display:block; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">
-                    Column Structure (No Header):<br>
-                    <strong>Column A:</strong> Category (Music/Video/News) | <strong>Column B:</strong> URL Link | <strong>Column C:</strong> Instruction
-                </small>
                 <input type="file" id="excelFileInput" accept=".xlsx, .xls" onchange="handleExcelUpload(event)">
             </div>
             <p id="uploadStatus" style="font-size: 13px; margin-top: 8px; color: var(--success); font-weight: 600;"></p>
@@ -639,14 +365,19 @@
                 <p style="margin-top: 0; font-weight: 600; font-size: 14px; color: var(--primary-bg);">📤 Upload Your Assignment File (Max 100 MB):</p>
                 <input type="file" id="taskFileToUpload" style="background: white; margin-bottom: 12px; padding: 10px; border-radius: 8px;">
                 <button type="button" onclick="executeUploadTask()" id="uploadBtn" style="background-color: var(--success); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);">Submit Task Now</button>
-                <p id="uploadProgress" style="font-size: 13px; margin-top: 10px; font-weight: 600; color: var(--accent);"></p>
+                
+                <!-- Indikator Persentase & Progress Bar -->
+                <p id="uploadProgress" style="font-size: 13px; margin-top: 12px; font-weight: 600; color: var(--accent);"></p>
+                <div class="progress-bar-container" id="progressBarContainer">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
             </div>
 
             <button class="close-btn" onclick="closeModal()">Close</button>
         </div>
     </div>
 
-    <!-- CUSTOM ALERT / PROMPT MODAL -->
+    <!-- CUSTOM ALERT MODAL -->
     <div class="modal" id="customAlertModal">
         <div class="modal-content">
             <h2 id="customAlertTitle" style="font-size: 18px; margin-bottom: 15px;">Notification</h2>
@@ -688,7 +419,6 @@
                 
                 document.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected-opt'));
                 option.classList.add('selected-opt');
-                
                 customSelect.classList.remove('open');
                 customOptions.classList.remove('open');
                 await preloadDepartmentData(value);
@@ -717,7 +447,6 @@
                 inputField.style.display = 'none';
                 inputField.type = 'text';
                 document.getElementById('customAlertCancelBtn').style.display = 'none';
-                
                 alertCallback = resolve;
                 const modal = document.getElementById('customAlertModal');
                 modal.style.display = 'flex';
@@ -734,7 +463,6 @@
                 inputField.type = 'password';
                 inputField.style.display = 'block';
                 document.getElementById('customAlertCancelBtn').style.display = 'block';
-                
                 alertCallback = resolve;
                 const modal = document.getElementById('customAlertModal');
                 modal.style.display = 'flex';
@@ -764,12 +492,11 @@
             if (password === "admin123") {
                 const mainPage = document.getElementById('userMainPage');
                 const adminPanel = document.getElementById('adminPanel');
-                
-                mainPage.style.animation = 'smoothExit 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+                mainPage.style.animation = 'smoothExit 0.5s ease forwards';
                 setTimeout(() => {
                     mainPage.style.display = 'none';
                     adminPanel.style.display = 'block';
-                    adminPanel.style.animation = 'smoothEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+                    adminPanel.style.animation = 'smoothEntrance 0.6s ease forwards';
                     loadAdminDataForDept();
                 }, 450);
             } else if (password !== null) {
@@ -780,12 +507,11 @@
         function closeAdminPanel() {
             const adminPanel = document.getElementById('adminPanel');
             const mainPage = document.getElementById('userMainPage');
-            
-            adminPanel.style.animation = 'smoothExit 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+            adminPanel.style.animation = 'smoothExit 0.5s ease forwards';
             setTimeout(() => {
                 adminPanel.style.display = 'none';
                 mainPage.style.display = 'block';
-                mainPage.style.animation = 'smoothEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+                mainPage.style.animation = 'smoothEntrance 0.6s ease forwards';
             }, 450);
         }
 
@@ -800,8 +526,7 @@
                 const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&dept=${encodeURIComponent(dept)}`);
                 const result = await response.json();
                 document.getElementById('adminJsInput').value = result.customUploadJs || "";
-                const count = result.tasks ? result.tasks.length : 0;
-                document.getElementById('uploadStatus').textContent = `System status: ${count} tasks loaded.`;
+                document.getElementById('uploadStatus').textContent = `System status: ${result.tasks ? result.tasks.length : 0} tasks loaded.`;
             } catch (err) {
                 document.getElementById('uploadStatus').textContent = "Failed to load online status.";
             }
@@ -943,9 +668,7 @@
                     return;
                 }
 
-                if (!userTaskHistory[activeUserName]) {
-                    userTaskHistory[activeUserName] = [];
-                }
+                if (!userTaskHistory[activeUserName]) userTaskHistory[activeUserName] = [];
 
                 let availableTasks = deptTasks.filter(task => !userTaskHistory[activeUserName].includes(task.url));
                 if (availableTasks.length === 0) {
@@ -964,6 +687,7 @@
                 
                 document.getElementById('taskFileToUpload').value = "";
                 document.getElementById('uploadProgress').textContent = "";
+                document.getElementById('progressBarContainer').style.display = 'none';
 
                 const mediaContainer = document.getElementById('mediaContainer');
                 mediaContainer.innerHTML = '';
@@ -1008,14 +732,16 @@
             defaultUploadTask();
         }
 
-        // FUNGSI UPLOAD CEPAT MENGGUNAKAN FORMDATA (TANPA BASE64, JAUH LEBIH CEPAT DAN RINGAN)
-        async function defaultUploadTask() {
+        // FUNGSI UPLOAD DENGAN PERSENTASE PROGRESS BAR (XHR)
+        function defaultUploadTask() {
             const fileInput = document.getElementById('taskFileToUpload');
             const progressText = document.getElementById('uploadProgress');
+            const progressBarContainer = document.getElementById('progressBarContainer');
+            const progressBarFill = document.getElementById('progressBarFill');
             const uploadBtn = document.getElementById('uploadBtn');
 
             if (fileInput.files.length === 0) {
-                await showCustomAlert("Please select a file to upload first!", "Missing File");
+                showCustomAlert("Please select a file to upload first!", "Missing File");
                 return;
             }
 
@@ -1023,45 +749,65 @@
             const maxSizeInBytes = 100 * 1024 * 1024; // 100 MB
 
             if (file.size > maxSizeInBytes) {
-                await showCustomAlert("File size exceeds the 100 MB limit. Please choose a smaller file.", "File Too Large");
+                showCustomAlert("File size exceeds the 100 MB limit. Please choose a smaller file.", "File Too Large");
                 return;
             }
 
-            progressText.textContent = "🚀 Uploading file quickly... Please wait...";
             uploadBtn.disabled = true;
+            progressBarContainer.style.display = 'block';
+            progressBarFill.style.width = '0%';
+            progressText.textContent = "Mengunggah: 0%";
 
-            try {
-                const formData = new FormData();
-                formData.append('action', 'uploadLargeFile');
-                formData.append('file', file);
-                formData.append('filename', file.name);
-                formData.append('mimeType', file.type);
-                formData.append('nama', activeUserName);
-                formData.append('departemen', activeDepartment);
+            const formData = new FormData();
+            formData.append('action', 'uploadLargeFile');
+            formData.append('file', file);
+            formData.append('filename', file.name);
+            formData.append('mimeType', file.type);
+            formData.append('nama', activeUserName);
+            formData.append('departemen', activeDepartment);
 
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData,
-                    redirect: "follow"
-                });
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', APPS_SCRIPT_URL, true);
 
-                const result = await response.json();
-
-                if (result.status === "success") {
-                    progressText.textContent = "✅ File successfully uploaded and saved!";
-                    await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
-                    fileInput.value = "";
-                } else {
-                    throw new Error(result.message || "Unknown server error");
+            // Memantau persentase pengiriman file secara real-time
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = Math.round((e.loaded / e.total) * 100);
+                    progressBarFill.style.width = percentComplete + '%';
+                    progressText.textContent = `Mengunggah: ${percentComplete}% (${(e.loaded / (1024*1024)).toFixed(1)} MB dari ${(e.total / (1024*1024)).toFixed(1)} MB)`;
                 }
+            };
 
-            } catch (error) {
-                console.error("Upload error details:", error);
-                progressText.textContent = "❌ Upload failed.";
-                await showCustomAlert("Upload failed. Error: " + error.message, "Error");
-            } finally {
+            xhr.onload = async function() {
                 uploadBtn.disabled = false;
-            }
+                if (xhr.status === 200) {
+                    try {
+                        const result = JSON.parse(xhr.responseText);
+                        if (result.status === "success") {
+                            progressText.textContent = "✅ File berhasil diunggah dan disimpan!";
+                            await showCustomAlert("Terima kasih! Tugas Anda berhasil dikirim ke folder departemen.", "Success");
+                            fileInput.value = "";
+                            progressBarContainer.style.display = 'none';
+                        } else {
+                            throw new Error(result.message || "Unknown server error");
+                        }
+                    } catch (e) {
+                        progressText.textContent = "❌ Gagal memproses respons server.";
+                        await showCustomAlert("Respon server tidak valid.", "Error");
+                    }
+                } else {
+                    progressText.textContent = "❌ Unggah gagal.";
+                    await showCustomAlert("Gagal mengunggah file ke server (HTTP Status: " + xhr.status + ")", "Error");
+                }
+            };
+
+            xhr.onerror = async function() {
+                uploadBtn.disabled = false;
+                progressText.textContent = "❌ Terjadi kesalahan jaringan.";
+                await showCustomAlert("Terjadi kesalahan jaringan saat mengunggah.", "Error");
+            };
+
+            xhr.send(formData);
         }
 
         function closeModal() {
