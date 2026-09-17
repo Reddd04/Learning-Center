@@ -522,7 +522,7 @@
             height: 100%;
             width: 0%;
             background-color: var(--success);
-            transition: width 0.2s ease-in-out;
+            transition: width 0.15s ease-in-out;
         }
 
         /* Custom Modern Alert/Prompt Modal */
@@ -1062,7 +1062,7 @@
             defaultUploadTask();
         }
 
-        // FUNGSI UPLOAD AMAN HINGGA 50 MB DENGAN REAL-TIME PROGRESS BAR (0 - 100%)
+        // SISTEM CHUNK UPLOAD 50 MB DENGAN PROGRESS BAR REAL-TIME (0 - 100%)
         async function defaultUploadTask() {
             const fileInput = document.getElementById('taskFileToUpload');
             const progressText = document.getElementById('uploadProgress');
@@ -1076,7 +1076,7 @@
             }
 
             const file = fileInput.files[0];
-            const maxSizeInBytes = 50 * 1024 * 1024; // 50 MB dalam Bytes
+            const maxSizeInBytes = 50 * 1024 * 1024; // 50 MB
 
             if (file.size > maxSizeInBytes) {
                 await showCustomAlert("File size exceeds the 50 MB limit. Please choose a smaller file.", "File Too Large");
@@ -1088,72 +1088,64 @@
             progressBarFill.style.width = '0%';
             uploadBtn.disabled = true;
 
+            const chunkSize = 1024 * 1024; // 1 MB per chunk agar stabil dan aman dari error network
+            const totalChunks = Math.ceil(file.size / chunkSize);
+            const uploadId = 'up_' + Date.now() + '_' + Math.random().toString(36.substring(2, 9));
+
             try {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                
-                reader.onload = async function() {
-                    progressText.textContent = "Encoding and sending file (0%)...";
-                    const base64Data = reader.result.split(',')[1];
+                for (let i = 0; i < totalChunks; i++) {
+                    const start = i * chunkSize;
+                    const end = Math.min(file.size, start + chunkSize);
+                    const chunk = file.slice(start, end);
+
+                    const base64Chunk = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result.split(',')[1]);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(chunk);
+                    });
 
                     const payload = {
-                        action: "uploadLargeFile",
+                        action: "uploadChunkedFile",
+                        uploadId: uploadId,
+                        chunkIndex: i,
+                        totalChunks: totalChunks,
                         filename: file.name,
                         mimeType: file.type,
                         nama: activeUserName,
                         departemen: activeDepartment,
-                        fileData: base64Data
+                        fileData: base64Chunk
                     };
 
-                    // Menggunakan XMLHttpRequest agar bisa menangkap event progress upload secara real-time
-                    const xhr = new XMLHttpRequest();
-                    xhr.open("POST", APPS_SCRIPT_URL, true);
-                    xhr.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
-
-                    xhr.upload.onprogress = function(event) {
-                        if (event.lengthComputable) {
-                            const percentComplete = Math.round((event.loaded / event.total) * 100);
-                            progressBarFill.style.width = percentComplete + '%';
-                            progressText.textContent = `Uploading file... ${percentComplete}%`;
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "text/plain;charset=utf-8"
                         }
-                    };
+                    });
 
-                    xhr.onload = async function() {
-                        uploadBtn.disabled = false;
-                        if (xhr.status === 200) {
-                            try {
-                                const result = JSON.parse(xhr.responseText);
-                                if (result.status === "success") {
-                                    progressBarFill.style.width = '100%';
-                                    progressText.textContent = "✅ File successfully uploaded and saved!";
-                                    await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
-                                    fileInput.value = "";
-                                } else {
-                                    throw new Error(result.message || "Server error");
-                                }
-                            } catch (parseError) {
-                                progressText.textContent = "❌ Upload failed.";
-                                await showCustomAlert("Failed to parse response from server.", "Error");
-                            }
-                        } else {
-                            progressText.textContent = "❌ Upload failed.";
-                            await showCustomAlert("Server returned status: " + xhr.status, "Error");
-                        }
-                    };
+                    const result = await response.json();
+                    if (result.status !== "success") {
+                        throw new Error(result.message || "Failed during chunk upload.");
+                    }
 
-                    xhr.onerror = async function() {
-                        uploadBtn.disabled = false;
-                        progressText.textContent = "❌ Network error during upload.";
-                        await showCustomAlert("A network error occurred while uploading the file.", "Error");
-                    };
+                    // Update real-time progress bar (0% - 100%)
+                    const percentComplete = Math.round(((i + 1) / totalChunks) * 100);
+                    progressBarFill.style.width = percentComplete + '%';
+                    progressText.textContent = `Uploading file... ${percentComplete}%`;
+                }
 
-                    xhr.send(JSON.stringify(payload));
-                };
+                progressBarFill.style.width = '100%';
+                progressText.textContent = "✅ File successfully uploaded and saved!";
+                await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
+                fileInput.value = "";
 
             } catch (error) {
                 console.error("Upload error details:", error);
                 progressText.textContent = "❌ Upload failed.";
                 await showCustomAlert("Upload failed. Error: " + error.message, "Error");
+            } finally {
                 uploadBtn.disabled = false;
             }
         }
