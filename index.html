@@ -44,16 +44,29 @@
             box-sizing: border-box;
             animation: smoothEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             position: relative;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
         }
 
         @keyframes smoothEntrance {
-            0% { opacity: 0; transform: translateY(35px) scale(0.95); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
+            0% {
+                opacity: 0;
+                transform: translateY(35px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         @keyframes smoothExit {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-25px) scale(0.95); }
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-25px) scale(0.95);
+            }
         }
 
         h1 {
@@ -84,6 +97,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--text-muted);
+            transition: color 0.3s ease;
         }
 
         input, textarea {
@@ -96,16 +110,22 @@
             color: var(--text-main);
             box-sizing: border-box;
             outline: none;
-            transition: all 0.4s ease;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        input:hover, textarea:hover {
+            border-color: #94A3B8;
+            background-color: #FFFFFF;
         }
 
         input:focus, textarea:focus {
             border-color: var(--accent);
             background-color: #FFFFFF;
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+            transform: translateY(-2px);
         }
 
-        /* CUSTOM SELECT STYLES */
+        /* CUSTOM SMOOTH SELECT STYLES */
         .custom-select-wrapper {
             position: relative;
             user-select: none;
@@ -124,11 +144,24 @@
             background-color: #F8FAFC;
             color: var(--text-muted);
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .custom-select.selected { color: var(--text-main); }
-        .custom-select.open { border-color: var(--accent); background-color: #FFFFFF; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12); }
+        .custom-select.selected {
+            color: var(--text-main);
+        }
+
+        .custom-select:hover {
+            border-color: #94A3B8;
+            background-color: #FFFFFF;
+        }
+
+        .custom-select.open {
+            border-color: var(--accent);
+            background-color: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+
         .custom-select::after {
             content: '';
             width: 10px;
@@ -136,11 +169,16 @@
             border-right: 2px solid var(--text-muted);
             border-bottom: 2px solid var(--text-muted);
             transform: rotate(45deg);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             margin-left: 10px;
             margin-top: -3px;
         }
-        .custom-select.open::after { transform: rotate(-135deg); border-color: var(--accent); margin-top: 3px; }
+
+        .custom-select.open::after {
+            transform: rotate(-135deg);
+            border-color: var(--accent);
+            margin-top: 3px;
+        }
 
         .custom-options {
             position: absolute;
@@ -156,21 +194,36 @@
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px) scale(0.98);
-            transition: all 0.35s ease;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             max-height: 250px;
             overflow-y: auto;
         }
 
-        .custom-options.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+        .custom-options.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
         .custom-option {
             padding: 12px 16px;
             font-size: 14px;
             color: var(--text-main);
             cursor: pointer;
-            transition: background-color 0.2s ease, padding-left 0.2s ease;
+            transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
         }
-        .custom-option:hover { background-color: #EFF6FF; color: var(--accent); padding-left: 20px; }
-        .custom-option.selected-opt { background-color: #EFF6FF; color: var(--accent); font-weight: 600; }
+
+        .custom-option:hover {
+            background-color: #EFF6FF;
+            color: var(--accent);
+            padding-left: 20px;
+        }
+
+        .custom-option.selected-opt {
+            background-color: #EFF6FF;
+            color: var(--accent);
+            font-weight: 600;
+        }
 
         button {
             width: 100%;
@@ -182,15 +235,25 @@
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.35s ease;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
         }
-        button:hover { background-color: var(--accent-hover); transform: translateY(-2px); }
 
+        button:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        /* Loading Spinner Styles */
         .spinner {
             width: 18px;
             height: 18px;
@@ -200,65 +263,270 @@
             animation: spin 0.8s linear infinite;
             display: none;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .footer-credit { position: fixed; bottom: 15px; left: 20px; font-size: 11px; color: var(--text-muted); font-weight: 500; z-index: 10; }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Fixed Footer Credits & Admin Button */
+        .footer-credit {
+            position: fixed;
+            bottom: 15px;
+            left: 20px;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            z-index: 10;
+        }
+
         .admin-link-btn {
-            position: fixed; bottom: 15px; right: 20px; background: white; color: var(--text-muted);
-            text-decoration: none; font-size: 12px; font-weight: 600; padding: 8px 14px;
-            border-radius: 20px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08); border: 1px solid var(--border-color); z-index: 10;
+            position: fixed;
+            bottom: 15px;
+            right: 20px;
+            background: white;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+            border: 1px solid var(--border-color);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 10;
         }
-        .admin-link-btn:hover { color: var(--accent); border-color: var(--accent); }
 
+        .admin-link-btn:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+        }
+
+        /* Ultra Smooth Modal Styles */
         .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(15, 23, 42, 0); backdrop-filter: blur(0px);
-            justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;
-            z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.5s ease;
-        }
-        .modal.active { opacity: 1; visibility: visible; background-color: rgba(15, 23, 42, 0.65); backdrop-filter: blur(10px); }
-        .modal-content {
-            background-color: white; padding: 35px; border-radius: 24px; max-width: 580px; width: 100%;
-            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.35); max-height: 90vh; overflow-y: auto;
-            transform: translateY(40px) scale(0.92); opacity: 0; transition: all 0.5s ease;
-        }
-        .modal.active .modal-content { transform: translateY(0) scale(1); opacity: 1; }
-
-        .task-detail { background-color: #F8FAFC; border: 1px solid var(--border-color); padding: 20px; border-radius: 14px; margin: 20px 0; }
-        .close-btn { background-color: #64748B; margin-top: 15px; }
-        .back-btn { background-color: #64748B; margin-bottom: 20px; width: auto; padding: 10px 18px; font-size: 13px; }
-        .info-box { background-color: #EFF6FF; border: 1px solid #BFDBFE; padding: 14px; border-radius: 12px; font-size: 13px; color: #1E40AF; margin-bottom: 20px; }
-        .file-upload-box { border: 2px dashed #CBD5E1; padding: 24px; border-radius: 12px; text-align: center; background: #F8FAFC; }
-        .download-template-btn { display: inline-block; background-color: var(--success); color: white; padding: 10px 16px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: 600; margin-bottom: 15px; }
-        .media-container { margin-top: 12px; margin-bottom: 15px; width: 100%; }
-        .media-container iframe, .media-container video, .media-container audio { width: 100%; border-radius: 10px; border: none; }
-        .media-container iframe { height: 300px; }
-        .news-card { background: white; padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
-        .news-btn { display: inline-block; background-color: var(--accent); color: white; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; }
-        .fallback-link { display: block; margin-top: 10px; font-size: 13px; color: var(--accent); text-align: center; text-decoration: underline; }
-        .upload-section { background: #F1F5F9; border: 1px solid var(--border-color); padding: 20px; border-radius: 14px; margin-top: 20px; text-align: center; }
-
-        /* PROGRESS BAR STYLES */
-        .progress-bar-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            background-color: #E2E8F0;
-            border-radius: 8px;
-            height: 10px;
-            margin-top: 12px;
-            overflow: hidden;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: background-color 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                        backdrop-filter 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                        opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                        visibility 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+            background-color: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 35px;
+            border-radius: 24px;
+            max-width: 580px;
+            width: 100%;
+            box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.35);
+            max-height: 90vh;
+            overflow-y: auto;
+            box-sizing: border-box;
+            transform: translateY(40px) scale(0.92);
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: var(--primary-bg);
+            font-size: 22px;
+            letter-spacing: -0.5px;
+        }
+
+        .task-detail {
+            background-color: #F8FAFC;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 14px;
+            margin: 20px 0;
+        }
+
+        .close-btn {
+            background-color: #64748B;
+            margin-top: 15px;
+            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.2);
+        }
+        .close-btn:hover {
+            background-color: #475569;
+            box-shadow: 0 6px 16px rgba(100, 116, 139, 0.3);
+        }
+
+        #adminPanel {
             display: none;
         }
-        .progress-bar-fill {
-            height: 100%;
-            width: 0%;
-            background-color: var(--accent);
-            transition: width 0.2s ease;
+
+        .back-btn {
+            background-color: #64748B;
+            margin-bottom: 20px;
+            width: auto;
+            padding: 10px 18px;
+            font-size: 13px;
+            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.15);
+        }
+        .back-btn:hover {
+            background-color: #475569;
         }
 
-        #customAlertModal .modal-content { max-width: 420px; text-align: center; padding: 30px; }
-        #customAlertMessage { font-size: 15px; color: var(--text-main); margin-bottom: 25px; line-height: 1.5; }
-        #customAlertInput { margin-bottom: 20px; -webkit-text-security: disc; }
-        .custom-alert-btn-group { display: flex; gap: 10px; }
+        .info-box {
+            background-color: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #1E40AF;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .file-upload-box {
+            border: 2px dashed #CBD5E1;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            background: #F8FAFC;
+            transition: all 0.3s ease;
+        }
+        .file-upload-box:hover {
+            border-color: var(--accent);
+            background: #F1F5F9;
+        }
+
+        .download-template-btn {
+            display: inline-block;
+            background-color: var(--success);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+        .download-template-btn:hover {
+            background-color: var(--success-hover);
+            transform: translateY(-2px);
+        }
+
+        .media-container {
+            margin-top: 12px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .media-container iframe, .media-container video, .media-container audio {
+            width: 100%;
+            border-radius: 10px;
+            border: none;
+        }
+        .media-container iframe {
+            height: 300px;
+        }
+
+        .news-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+        .news-card h3 {
+            margin-top: 0;
+            color: var(--primary-bg);
+            font-size: 18px;
+        }
+        .news-card p {
+            font-size: 12px;
+            color: var(--text-muted);
+            word-break: break-all;
+            margin-bottom: 18px;
+        }
+        .news-btn {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .news-btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .fallback-link {
+            display: block;
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--accent);
+            text-align: center;
+            text-decoration: underline;
+        }
+
+        .upload-section {
+            background: #F1F5F9;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 14px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        /* Custom Modern Alert/Prompt Modal */
+        #customAlertModal .modal-content {
+            max-width: 420px;
+            text-align: center;
+            padding: 30px;
+        }
+        #customAlertMessage {
+            font-size: 15px;
+            color: var(--text-main);
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        #customAlertInput {
+            margin-bottom: 20px;
+            -webkit-text-security: disc;
+        }
+        .custom-alert-btn-group {
+            display: flex;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -275,6 +543,7 @@
 
             <div class="form-group">
                 <label>Select Department</label>
+                <!-- Custom Smooth Select Element -->
                 <div class="custom-select-wrapper" id="customDeptSelect">
                     <div class="custom-select" id="customSelectTrigger">-- Choose Department --</div>
                     <div class="custom-options" id="customOptionsList">
@@ -305,7 +574,9 @@
         <h1>Admin Dashboard</h1>
         <p class="subtitle">Manage department tasks and custom configurations</p>
         
-        <div class="info-box">Configure task lists and custom configurations for each specific department.</div>
+        <div class="info-box">
+            Configure task lists and custom JavaScript upload scripts for each specific department.
+        </div>
 
         <div class="form-group">
             <label for="adminDeptSelect">Select Department to Configure:</label>
@@ -330,6 +601,10 @@
         <div class="form-group">
             <label>Upload Task Excel File:</label>
             <div class="file-upload-box">
+                <small style="display:block; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">
+                    Column Structure (No Header):<br>
+                    <strong>Column A:</strong> Category (Music/Video/News) | <strong>Column B:</strong> URL Link | <strong>Column C:</strong> Instruction
+                </small>
                 <input type="file" id="excelFileInput" accept=".xlsx, .xls" onchange="handleExcelUpload(event)">
             </div>
             <p id="uploadStatus" style="font-size: 13px; margin-top: 8px; color: var(--success); font-weight: 600;"></p>
@@ -337,6 +612,7 @@
 
         <div class="form-group">
             <label for="adminJsInput">Custom Upload JavaScript (Optional):</label>
+            <small style="display:block; color: var(--text-muted); margin-bottom: 5px;">Leave empty to use the standard direct Google Drive upload function.</small>
             <textarea id="adminJsInput" rows="4" placeholder="// Leave blank for standard upload"></textarea>
         </div>
 
@@ -355,7 +631,10 @@
             
             <div class="task-detail">
                 <p style="margin-top:0;"><strong>Task Category:</strong> <span id="taskType" style="color: var(--accent); font-weight: 600;"></span></p>
+                
+                <!-- Media / News Container Area -->
                 <div id="mediaContainer" class="media-container"></div>
+
                 <p style="margin-bottom: 6px;"><strong>Instructions:</strong></p>
                 <p id="taskInstruction" style="font-weight: 400; line-height: 1.6; white-space: pre-line; background: white; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); margin: 0; color: #334155;"></p>
             </div>
@@ -365,19 +644,14 @@
                 <p style="margin-top: 0; font-weight: 600; font-size: 14px; color: var(--primary-bg);">📤 Upload Your Assignment File (Max 100 MB):</p>
                 <input type="file" id="taskFileToUpload" style="background: white; margin-bottom: 12px; padding: 10px; border-radius: 8px;">
                 <button type="button" onclick="executeUploadTask()" id="uploadBtn" style="background-color: var(--success); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);">Submit Task Now</button>
-                
-                <!-- Indikator Persentase & Progress Bar -->
-                <p id="uploadProgress" style="font-size: 13px; margin-top: 12px; font-weight: 600; color: var(--accent);"></p>
-                <div class="progress-bar-container" id="progressBarContainer">
-                    <div class="progress-bar-fill" id="progressBarFill"></div>
-                </div>
+                <p id="uploadProgress" style="font-size: 13px; margin-top: 10px; font-weight: 600; color: var(--accent);"></p>
             </div>
 
             <button class="close-btn" onclick="closeModal()">Close</button>
         </div>
     </div>
 
-    <!-- CUSTOM ALERT MODAL -->
+    <!-- CUSTOM ALERT / PROMPT MODAL -->
     <div class="modal" id="customAlertModal">
         <div class="modal-content">
             <h2 id="customAlertTitle" style="font-size: 18px; margin-bottom: 15px;">Notification</h2>
@@ -391,6 +665,7 @@
     </div>
 
     <script>
+        // URL Apps Script Baru
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWNADl6NT-M_oSUnZbcBcRVCk4Qf7EFxiVa6agwjxf35rXQ8DZRxHf460m6J-gj6W2RQ/exec';
 
         let userTaskHistory = JSON.parse(localStorage.getItem('learningCenterHistory')) || {};
@@ -400,6 +675,7 @@
         let activeDepartment = "";
         let alertCallback = null;
 
+        // Custom Smooth Select Logic
         const customSelect = document.getElementById('customSelectTrigger');
         const customOptions = document.getElementById('customOptionsList');
         const hiddenInput = document.getElementById('department');
@@ -413,14 +689,18 @@
         document.querySelectorAll('.custom-option').forEach(option => {
             option.addEventListener('click', async () => {
                 const value = option.getAttribute('data-value');
-                customSelect.textContent = option.textContent;
+                const text = option.textContent;
+                
+                customSelect.textContent = text;
                 customSelect.classList.add('selected');
                 hiddenInput.value = value;
                 
                 document.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected-opt'));
                 option.classList.add('selected-opt');
+                
                 customSelect.classList.remove('open');
                 customOptions.classList.remove('open');
+
                 await preloadDepartmentData(value);
             });
         });
@@ -435,8 +715,12 @@
             try {
                 const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&dept=${encodeURIComponent(dept)}`);
                 const deptData = await response.json();
-                if (deptData.tasks) liveDeptTasks[dept] = deptData.tasks;
-            } catch (err) { console.error(err); }
+                if (deptData.tasks) {
+                    liveDeptTasks[dept] = deptData.tasks;
+                }
+            } catch (err) {
+                console.error("Preload background error:", err);
+            }
         }
 
         function showCustomAlert(message, title = "Notification") {
@@ -447,6 +731,7 @@
                 inputField.style.display = 'none';
                 inputField.type = 'text';
                 document.getElementById('customAlertCancelBtn').style.display = 'none';
+                
                 alertCallback = resolve;
                 const modal = document.getElementById('customAlertModal');
                 modal.style.display = 'flex';
@@ -463,10 +748,14 @@
                 inputField.type = 'password';
                 inputField.style.display = 'block';
                 document.getElementById('customAlertCancelBtn').style.display = 'block';
+                
                 alertCallback = resolve;
                 const modal = document.getElementById('customAlertModal');
                 modal.style.display = 'flex';
-                requestAnimationFrame(() => { modal.classList.add('active'); inputField.focus(); });
+                requestAnimationFrame(() => {
+                    modal.classList.add('active');
+                    inputField.focus();
+                });
             });
         }
 
@@ -492,11 +781,12 @@
             if (password === "admin123") {
                 const mainPage = document.getElementById('userMainPage');
                 const adminPanel = document.getElementById('adminPanel');
-                mainPage.style.animation = 'smoothExit 0.5s ease forwards';
+                
+                mainPage.style.animation = 'smoothExit 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards';
                 setTimeout(() => {
                     mainPage.style.display = 'none';
                     adminPanel.style.display = 'block';
-                    adminPanel.style.animation = 'smoothEntrance 0.6s ease forwards';
+                    adminPanel.style.animation = 'smoothEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
                     loadAdminDataForDept();
                 }, 450);
             } else if (password !== null) {
@@ -507,11 +797,12 @@
         function closeAdminPanel() {
             const adminPanel = document.getElementById('adminPanel');
             const mainPage = document.getElementById('userMainPage');
-            adminPanel.style.animation = 'smoothExit 0.5s ease forwards';
+            
+            adminPanel.style.animation = 'smoothExit 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards';
             setTimeout(() => {
                 adminPanel.style.display = 'none';
                 mainPage.style.display = 'block';
-                mainPage.style.animation = 'smoothEntrance 0.6s ease forwards';
+                mainPage.style.animation = 'smoothEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards';
             }, 450);
         }
 
@@ -520,14 +811,18 @@
             document.getElementById('excelFileInput').value = "";
             document.getElementById('adminJsInput').value = "";
             tempExcelTasks = null;
+            
             document.getElementById('uploadStatus').textContent = "Checking online database...";
 
             try {
                 const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&dept=${encodeURIComponent(dept)}`);
                 const result = await response.json();
+                
                 document.getElementById('adminJsInput').value = result.customUploadJs || "";
-                document.getElementById('uploadStatus').textContent = `System status: ${result.tasks ? result.tasks.length : 0} tasks loaded.`;
+                const count = result.tasks ? result.tasks.length : 0;
+                document.getElementById('uploadStatus').textContent = `System status: ${count} tasks loaded in online database for this department.`;
             } catch (err) {
+                console.error(err);
                 document.getElementById('uploadStatus').textContent = "Failed to load online status.";
             }
         }
@@ -535,9 +830,9 @@
         function downloadTemplate(e) {
             e.preventDefault();
             const wsData = [
-                ["Music", "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "Listen to this track."],
-                ["Video", "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "Watch tutorial."],
-                ["News", "https://example.com", "Read article."]
+                ["Music", "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "Listen to this music track with full attention."],
+                ["Video", "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "Watch the entire training video tutorial."],
+                ["News", "https://example.com/berita-hotel", "Read the news article and submit your review."]
             ];
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             const wb = XLSX.utils.book_new();
@@ -554,7 +849,8 @@
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
                     const jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                     
                     let parsedTasks = [];
@@ -571,12 +867,13 @@
 
                     if (parsedTasks.length > 0) {
                         tempExcelTasks = parsedTasks;
-                        document.getElementById('uploadStatus').textContent = `Successfully parsed ${parsedTasks.length} rows! Click Save.`;
+                        document.getElementById('uploadStatus').textContent = `Successfully parsed ${parsedTasks.length} rows! Click "Save Department Changes" below.`;
                     } else {
                         await showCustomAlert("The Excel file is empty or formatted incorrectly.", "Upload Warning");
                     }
                 } catch (error) {
                     await showCustomAlert("An error occurred while reading the Excel file.", "Error");
+                    console.error(error);
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -591,7 +888,7 @@
                 return;
             }
 
-            document.getElementById('uploadStatus').textContent = "Saving to Google Spreadsheet online...";
+            document.getElementById('uploadStatus').textContent = "Saving to Google Spreadsheet online... Please wait...";
 
             const payload = {
                 action: "saveAdminConfig",
@@ -604,18 +901,21 @@
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify(payload),
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    }
                 });
                 const result = await response.json();
                 if (result.status === "success") {
                     delete liveDeptTasks[dept]; 
-                    await showCustomAlert(`Successfully saved configuration for ${dept}!`, "Success");
+                    await showCustomAlert(`Successfully saved configuration for ${dept} to online database!`, "Success");
                     loadAdminDataForDept();
                 } else {
                     await showCustomAlert("Failed to save: " + result.message, "Error");
                 }
             } catch (err) {
-                await showCustomAlert("An error occurred while saving.", "Error");
+                console.error(err);
+                await showCustomAlert("An error occurred while saving to the server.", "Error");
             }
         }
 
@@ -664,30 +964,35 @@
                 }
 
                 if (!deptTasks || deptTasks.length === 0) {
-                    await showCustomAlert(`Sorry, task data for ${activeDepartment} has not been uploaded by Administrator yet.`, "Notice");
+                    await showCustomAlert(`Sorry, task data for ${activeDepartment} has not been uploaded by the Administrator yet.`, "Notice");
                     return;
                 }
 
-                if (!userTaskHistory[activeUserName]) userTaskHistory[activeUserName] = [];
+                if (!userTaskHistory[activeUserName]) {
+                    userTaskHistory[activeUserName] = [];
+                }
 
                 let availableTasks = deptTasks.filter(task => !userTaskHistory[activeUserName].includes(task.url));
+
                 if (availableTasks.length === 0) {
                     userTaskHistory[activeUserName] = [];
                     availableTasks = deptTasks;
                 }
 
-                const selectedTask = availableTasks[Math.floor(Math.random() * availableTasks.length)];
+                const randomIndex = Math.floor(Math.random() * availableTasks.length);
+                const selectedTask = availableTasks[randomIndex];
+
                 userTaskHistory[activeUserName].push(selectedTask.url);
                 localStorage.setItem('learningCenterHistory', JSON.stringify(userTaskHistory));
 
                 document.getElementById('userNameDisplay').textContent = activeUserName;
                 document.getElementById('userDeptDisplay').textContent = activeDepartment;
                 document.getElementById('taskType').textContent = selectedTask.type || "General";
+                
                 document.getElementById('taskInstruction').innerHTML = selectedTask.instruction || "";
                 
                 document.getElementById('taskFileToUpload').value = "";
                 document.getElementById('uploadProgress').textContent = "";
-                document.getElementById('progressBarContainer').style.display = 'none';
 
                 const mediaContainer = document.getElementById('mediaContainer');
                 mediaContainer.innerHTML = '';
@@ -699,7 +1004,7 @@
                     let embedLink = getEmbedUrl(rawUrl);
                     mediaContainer.innerHTML = `
                         <iframe src="${embedLink}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        <a href="${rawUrl}" target="_blank" class="fallback-link">🔗 Watch directly on YouTube</a>
+                        <a href="${rawUrl}" target="_blank" class="fallback-link">🔗 If video fails to load, click here to watch directly on YouTube</a>
                     `;
                 } else if (cat.includes('music') || cat.includes('audio') || rawUrl.endsWith('.mp3') || rawUrl.endsWith('.wav')) {
                     mediaContainer.innerHTML = `<audio controls src="${rawUrl}"></audio>`;
@@ -707,7 +1012,7 @@
                     mediaContainer.innerHTML = `
                         <div class="news-card">
                             <h3>📰 Article / News Task</h3>
-                            <p>${rawUrl}</p>
+                            <p>Link: ${rawUrl}</p>
                             <a href="${rawUrl}" target="_blank" class="news-btn">📖 Open Article Now</a>
                         </div>
                     `;
@@ -720,7 +1025,8 @@
                 requestAnimationFrame(() => modal.classList.add('active'));
 
             } catch (err) {
-                await showCustomAlert("Failed to fetch task data from server.", "Error");
+                console.error(err);
+                await showCustomAlert("Failed to fetch task data from the server. Please check your internet connection.", "Error");
             } finally {
                 submitBtn.disabled = false;
                 spinner.style.display = 'none';
@@ -732,82 +1038,71 @@
             defaultUploadTask();
         }
 
-        // FUNGSI UPLOAD DENGAN PERSENTASE PROGRESS BAR (XHR)
-        function defaultUploadTask() {
+        // FUNGSI UPLOAD AMAN HINGGA 100 MB MENGGUNAKAN BASE64 JSON PAYLOAD
+        async function defaultUploadTask() {
             const fileInput = document.getElementById('taskFileToUpload');
             const progressText = document.getElementById('uploadProgress');
-            const progressBarContainer = document.getElementById('progressBarContainer');
-            const progressBarFill = document.getElementById('progressBarFill');
             const uploadBtn = document.getElementById('uploadBtn');
 
             if (fileInput.files.length === 0) {
-                showCustomAlert("Please select a file to upload first!", "Missing File");
+                await showCustomAlert("Please select a file to upload first!", "Missing File");
                 return;
             }
 
             const file = fileInput.files[0];
-            const maxSizeInBytes = 100 * 1024 * 1024; // 100 MB
+            const maxSizeInBytes = 100 * 1024 * 1024; // 100 MB dalam Bytes
 
             if (file.size > maxSizeInBytes) {
-                showCustomAlert("File size exceeds the 100 MB limit. Please choose a smaller file.", "File Too Large");
+                await showCustomAlert("File size exceeds the 100 MB limit. Please choose a smaller file.", "File Too Large");
                 return;
             }
 
+            progressText.textContent = "Preparing 100 MB file upload... Please wait...";
             uploadBtn.disabled = true;
-            progressBarContainer.style.display = 'block';
-            progressBarFill.style.width = '0%';
-            progressText.textContent = "Mengunggah: 0%";
 
-            const formData = new FormData();
-            formData.append('action', 'uploadLargeFile');
-            formData.append('file', file);
-            formData.append('filename', file.name);
-            formData.append('mimeType', file.type);
-            formData.append('nama', activeUserName);
-            formData.append('departemen', activeDepartment);
+            try {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                
+                reader.onload = async function() {
+                    progressText.textContent = "Uploading large file to server...";
+                    const base64Data = reader.result.split(',')[1];
 
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', APPS_SCRIPT_URL, true);
+                    const payload = {
+                        action: "uploadLargeFile",
+                        filename: file.name,
+                        mimeType: file.type,
+                        nama: activeUserName,
+                        departemen: activeDepartment,
+                        fileData: base64Data
+                    };
 
-            // Memantau persentase pengiriman file secara real-time
-            xhr.upload.onprogress = function(e) {
-                if (e.lengthComputable) {
-                    const percentComplete = Math.round((e.loaded / e.total) * 100);
-                    progressBarFill.style.width = percentComplete + '%';
-                    progressText.textContent = `Mengunggah: ${percentComplete}% (${(e.loaded / (1024*1024)).toFixed(1)} MB dari ${(e.total / (1024*1024)).toFixed(1)} MB)`;
-                }
-            };
-
-            xhr.onload = async function() {
-                uploadBtn.disabled = false;
-                if (xhr.status === 200) {
-                    try {
-                        const result = JSON.parse(xhr.responseText);
-                        if (result.status === "success") {
-                            progressText.textContent = "✅ File berhasil diunggah dan disimpan!";
-                            await showCustomAlert("Terima kasih! Tugas Anda berhasil dikirim ke folder departemen.", "Success");
-                            fileInput.value = "";
-                            progressBarContainer.style.display = 'none';
-                        } else {
-                            throw new Error(result.message || "Unknown server error");
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "text/plain;charset=utf-8"
                         }
-                    } catch (e) {
-                        progressText.textContent = "❌ Gagal memproses respons server.";
-                        await showCustomAlert("Respon server tidak valid.", "Error");
+                    });
+
+                    const result = await response.json();
+
+                    if (result.status === "success") {
+                        progressText.textContent = "✅ File successfully uploaded and saved!";
+                        await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
+                        fileInput.value = "";
+                    } else {
+                        throw new Error(result.message || "Server error");
                     }
-                } else {
-                    progressText.textContent = "❌ Unggah gagal.";
-                    await showCustomAlert("Gagal mengunggah file ke server (HTTP Status: " + xhr.status + ")", "Error");
-                }
-            };
+                    uploadBtn.disabled = false;
+                };
 
-            xhr.onerror = async function() {
+            } catch (error) {
+                console.error("Upload error details:", error);
+                progressText.textContent = "❌ Upload failed.";
+                await showCustomAlert("Upload failed. Error: " + error.message, "Error");
                 uploadBtn.disabled = false;
-                progressText.textContent = "❌ Terjadi kesalahan jaringan.";
-                await showCustomAlert("Terjadi kesalahan jaringan saat mengunggah.", "Error");
-            };
-
-            xhr.send(formData);
+            }
         }
 
         function closeModal() {
