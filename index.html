@@ -507,6 +507,24 @@
             text-align: center;
         }
 
+        /* Progress Bar Styles */
+        .progress-bar-container {
+            width: 100%;
+            background-color: #E2E8F0;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 12px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--success);
+            transition: width 0.2s ease-in-out;
+        }
+
         /* Custom Modern Alert/Prompt Modal */
         #customAlertModal .modal-content {
             max-width: 420px;
@@ -641,9 +659,14 @@
 
             <!-- DIRECT UPLOAD SECTION -->
             <div class="upload-section">
-                <p style="margin-top: 0; font-weight: 600; font-size: 14px; color: var(--primary-bg);">📤 Upload Your Assignment File (Max 100 MB):</p>
+                <p style="margin-top: 0; font-weight: 600; font-size: 14px; color: var(--primary-bg);">📤 Upload Your Assignment File (Max 50 MB):</p>
                 <input type="file" id="taskFileToUpload" style="background: white; margin-bottom: 12px; padding: 10px; border-radius: 8px;">
                 <button type="button" onclick="executeUploadTask()" id="uploadBtn" style="background-color: var(--success); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);">Submit Task Now</button>
+                
+                <!-- Progress Bar Elements -->
+                <div class="progress-bar-container" id="progressBarContainer">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
                 <p id="uploadProgress" style="font-size: 13px; margin-top: 10px; font-weight: 600; color: var(--accent);"></p>
             </div>
 
@@ -665,7 +688,6 @@
     </div>
 
     <script>
-        // URL Apps Script Baru
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWNADl6NT-M_oSUnZbcBcRVCk4Qf7EFxiVa6agwjxf35rXQ8DZRxHf460m6J-gj6W2RQ/exec';
 
         let userTaskHistory = JSON.parse(localStorage.getItem('learningCenterHistory')) || {};
@@ -993,6 +1015,8 @@
                 
                 document.getElementById('taskFileToUpload').value = "";
                 document.getElementById('uploadProgress').textContent = "";
+                document.getElementById('progressBarContainer').style.display = 'none';
+                document.getElementById('progressBarFill').style.width = '0%';
 
                 const mediaContainer = document.getElementById('mediaContainer');
                 mediaContainer.innerHTML = '';
@@ -1038,11 +1062,13 @@
             defaultUploadTask();
         }
 
-        // FUNGSI UPLOAD AMAN HINGGA 100 MB MENGGUNAKAN BASE64 JSON PAYLOAD
+        // FUNGSI UPLOAD AMAN HINGGA 50 MB DENGAN REAL-TIME PROGRESS BAR (0 - 100%)
         async function defaultUploadTask() {
             const fileInput = document.getElementById('taskFileToUpload');
             const progressText = document.getElementById('uploadProgress');
             const uploadBtn = document.getElementById('uploadBtn');
+            const progressBarContainer = document.getElementById('progressBarContainer');
+            const progressBarFill = document.getElementById('progressBarFill');
 
             if (fileInput.files.length === 0) {
                 await showCustomAlert("Please select a file to upload first!", "Missing File");
@@ -1050,14 +1076,16 @@
             }
 
             const file = fileInput.files[0];
-            const maxSizeInBytes = 100 * 1024 * 1024; // 100 MB dalam Bytes
+            const maxSizeInBytes = 50 * 1024 * 1024; // 50 MB dalam Bytes
 
             if (file.size > maxSizeInBytes) {
-                await showCustomAlert("File size exceeds the 100 MB limit. Please choose a smaller file.", "File Too Large");
+                await showCustomAlert("File size exceeds the 50 MB limit. Please choose a smaller file.", "File Too Large");
                 return;
             }
 
-            progressText.textContent = "Preparing 100 MB file upload... Please wait...";
+            progressText.textContent = "Preparing file upload...";
+            progressBarContainer.style.display = 'block';
+            progressBarFill.style.width = '0%';
             uploadBtn.disabled = true;
 
             try {
@@ -1065,7 +1093,7 @@
                 reader.readAsDataURL(file);
                 
                 reader.onload = async function() {
-                    progressText.textContent = "Uploading large file to server...";
+                    progressText.textContent = "Encoding and sending file (0%)...";
                     const base64Data = reader.result.split(',')[1];
 
                     const payload = {
@@ -1077,24 +1105,49 @@
                         fileData: base64Data
                     };
 
-                    const response = await fetch(APPS_SCRIPT_URL, {
-                        method: 'POST',
-                        body: JSON.stringify(payload),
-                        headers: {
-                            "Content-Type": "text/plain;charset=utf-8"
+                    // Menggunakan XMLHttpRequest agar bisa menangkap event progress upload secara real-time
+                    const xhr = new XMLHttpRequest();
+                    xhr.open("POST", APPS_SCRIPT_URL, true);
+                    xhr.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
+
+                    xhr.upload.onprogress = function(event) {
+                        if (event.lengthComputable) {
+                            const percentComplete = Math.round((event.loaded / event.total) * 100);
+                            progressBarFill.style.width = percentComplete + '%';
+                            progressText.textContent = `Uploading file... ${percentComplete}%`;
                         }
-                    });
+                    };
 
-                    const result = await response.json();
+                    xhr.onload = async function() {
+                        uploadBtn.disabled = false;
+                        if (xhr.status === 200) {
+                            try {
+                                const result = JSON.parse(xhr.responseText);
+                                if (result.status === "success") {
+                                    progressBarFill.style.width = '100%';
+                                    progressText.textContent = "✅ File successfully uploaded and saved!";
+                                    await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
+                                    fileInput.value = "";
+                                } else {
+                                    throw new Error(result.message || "Server error");
+                                }
+                            } catch (parseError) {
+                                progressText.textContent = "❌ Upload failed.";
+                                await showCustomAlert("Failed to parse response from server.", "Error");
+                            }
+                        } else {
+                            progressText.textContent = "❌ Upload failed.";
+                            await showCustomAlert("Server returned status: " + xhr.status, "Error");
+                        }
+                    };
 
-                    if (result.status === "success") {
-                        progressText.textContent = "✅ File successfully uploaded and saved!";
-                        await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
-                        fileInput.value = "";
-                    } else {
-                        throw new Error(result.message || "Server error");
-                    }
-                    uploadBtn.disabled = false;
+                    xhr.onerror = async function() {
+                        uploadBtn.disabled = false;
+                        progressText.textContent = "❌ Network error during upload.";
+                        await showCustomAlert("A network error occurred while uploading the file.", "Error");
+                    };
+
+                    xhr.send(JSON.stringify(payload));
                 };
 
             } catch (error) {
