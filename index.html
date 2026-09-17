@@ -642,7 +642,7 @@
 
             <!-- DIRECT UPLOAD SECTION -->
             <div class="upload-section">
-                <p style="margin-top: 0; font-weight: 600; font-size: 14px; color: var(--primary-bg);">📤 Upload Your Assignment File:</p>
+                <p style="margin-top: 0; font-weight: 600; font-size: 14px; color: var(--primary-bg);">📤 Upload Your Assignment File (Max 100 MB):</p>
                 <input type="file" id="taskFileToUpload" style="background: white; margin-bottom: 12px; padding: 10px; border-radius: 8px;">
                 <button type="button" onclick="executeUploadTask()" id="uploadBtn" style="background-color: var(--success); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);">Submit Task Now</button>
                 <p id="uploadProgress" style="font-size: 13px; margin-top: 10px; font-weight: 600; color: var(--accent);"></p>
@@ -1039,7 +1039,7 @@
             defaultUploadTask();
         }
 
-        // Fungsi Upload menggunakan FormData (Mendukung file ukuran berapapun tanpa limit kecil)
+        // Fungsi Upload menggunakan FormData (Mendukung file ukuran berapapun sampai maksimal 100 MB)
         async function defaultUploadTask() {
             const fileInput = document.getElementById('taskFileToUpload');
             const progressText = document.getElementById('uploadProgress');
@@ -1051,6 +1051,14 @@
             }
 
             const file = fileInput.files[0];
+            const maxSizeInBytes = 100 * 1024 * 1024; // 100 MB dalam Bytes
+
+            // Validasi ukuran file maksimal 100 MB
+            if (file.size > maxSizeInBytes) {
+                await showCustomAlert("File size exceeds the 100 MB limit. Please choose a smaller file.", "File Too Large");
+                return;
+            }
+
             progressText.textContent = "Uploading file... Please wait...";
             uploadBtn.disabled = true;
 
