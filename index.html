@@ -661,7 +661,7 @@
 
             <!-- DIRECT UPLOAD SECTION -->
             <div class="upload-section">
-                <p style="margin-top: 0; font-weight: 600; font-size: 14px; color: var(--primary-bg);">📤 Upload Your Assignment File (Max 50 MB):</p>
+                <p style="margin-top: 0; font-weight: 600; font-size: 14px; color: var(--primary-bg);">📤 Upload Your Assignment File (Max 35 MB):</p>
                 <input type="file" id="taskFileToUpload" style="background: white; margin-bottom: 12px; padding: 10px; border-radius: 8px;">
                 <button type="button" onclick="executeUploadTask()" id="uploadBtn" style="background-color: var(--success); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);">Submit Task Now</button>
                 
@@ -1065,7 +1065,7 @@
             defaultUploadTask();
         }
 
-        // FUNGSI UPLOAD 1 FILE UTUH SEKALIGUS (UTUH 100%) DENGAN PROGRESS BAR REAL-TIME
+        // FUNGSI UPLOAD 1 FILE UTUH SEKALIGUS (MAX 35 MB FILE ASLI AGAR AMAN DARI LIMIT BASE64 50 MB)
         async function defaultUploadTask() {
             const fileInput = document.getElementById('taskFileToUpload');
             const progressText = document.getElementById('uploadProgress');
@@ -1079,10 +1079,10 @@
             }
 
             const file = fileInput.files[0];
-            const maxSizeInBytes = 50 * 1024 * 1024; // 50 MB
+            const maxSizeInBytes = 35 * 1024 * 1024; // 35 MB (Batas aman murni sebelum kena limit 50 MB Google Apps Script setelah jadi Base64)
 
             if (file.size > maxSizeInBytes) {
-                await showCustomAlert("File size exceeds the 50 MB limit. Please choose a smaller file.", "File Too Large");
+                await showCustomAlert("File size exceeds the 35 MB limit (maximum size for single upload due to server limitations). Please choose a smaller file.", "File Too Large");
                 return;
             }
 
