@@ -636,7 +636,6 @@
                 <div id="mediaContainer" class="media-container"></div>
 
                 <p style="margin-bottom: 6px;"><strong>Instructions:</strong></p>
-                <!-- Instruksi mendukung format HTML dari Excel (seperti <i>, <b>, dsb.) -->
                 <p id="taskInstruction" style="font-weight: 400; line-height: 1.6; white-space: pre-line; background: white; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); margin: 0; color: #334155;"></p>
             </div>
 
@@ -666,7 +665,8 @@
     </div>
 
     <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwyhEi_p45ItSYs8dNs9NhPgmYES4StmQ9KcvzAhirRLsdj_1geH1rUcGmSrDWrszgmEA/exec';
+        // URL Apps Script Baru
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWNADl6NT-M_oSUnZbcBcRVCk4Qf7EFxiVa6agwjxf35rXQ8DZRxHf460m6J-gj6W2RQ/exec';
 
         let userTaskHistory = JSON.parse(localStorage.getItem('learningCenterHistory')) || {};
         let liveDeptTasks = {}; 
@@ -989,7 +989,6 @@
                 document.getElementById('userDeptDisplay').textContent = activeDepartment;
                 document.getElementById('taskType').textContent = selectedTask.type || "General";
                 
-                // Menerapkan innerHTML agar format teks (italic/bold) dari Excel dirender dengan benar
                 document.getElementById('taskInstruction').innerHTML = selectedTask.instruction || "";
                 
                 document.getElementById('taskFileToUpload').value = "";
@@ -1039,7 +1038,7 @@
             defaultUploadTask();
         }
 
-        // Fungsi Upload menggunakan FormData (Mendukung file ukuran berapapun sampai maksimal 100 MB)
+        // FUNGSI UPLOAD AMAN HINGGA 100 MB MENGGUNAKAN BASE64 JSON PAYLOAD
         async function defaultUploadTask() {
             const fileInput = document.getElementById('taskFileToUpload');
             const progressText = document.getElementById('uploadProgress');
@@ -1053,44 +1052,55 @@
             const file = fileInput.files[0];
             const maxSizeInBytes = 100 * 1024 * 1024; // 100 MB dalam Bytes
 
-            // Validasi ukuran file maksimal 100 MB
             if (file.size > maxSizeInBytes) {
                 await showCustomAlert("File size exceeds the 100 MB limit. Please choose a smaller file.", "File Too Large");
                 return;
             }
 
-            progressText.textContent = "Uploading file... Please wait...";
+            progressText.textContent = "Preparing 100 MB file upload... Please wait...";
             uploadBtn.disabled = true;
 
             try {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('filename', file.name);
-                formData.append('mimeType', file.type);
-                formData.append('nama', activeUserName);
-                formData.append('departemen', activeDepartment);
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                
+                reader.onload = async function() {
+                    progressText.textContent = "Uploading large file to server...";
+                    const base64Data = reader.result.split(',')[1];
 
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData,
-                    redirect: "follow"
-                });
+                    const payload = {
+                        action: "uploadLargeFile",
+                        filename: file.name,
+                        mimeType: file.type,
+                        nama: activeUserName,
+                        departemen: activeDepartment,
+                        fileData: base64Data
+                    };
 
-                const result = await response.json();
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "text/plain;charset=utf-8"
+                        }
+                    });
 
-                if (result.status === "success") {
-                    progressText.textContent = "✅ File successfully uploaded and saved!";
-                    await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
-                    fileInput.value = "";
-                } else {
-                    throw new Error(result.message || "Unknown server error");
-                }
+                    const result = await response.json();
+
+                    if (result.status === "success") {
+                        progressText.textContent = "✅ File successfully uploaded and saved!";
+                        await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
+                        fileInput.value = "";
+                    } else {
+                        throw new Error(result.message || "Server error");
+                    }
+                    uploadBtn.disabled = false;
+                };
 
             } catch (error) {
                 console.error("Upload error details:", error);
                 progressText.textContent = "❌ Upload failed.";
                 await showCustomAlert("Upload failed. Error: " + error.message, "Error");
-            } finally {
                 uploadBtn.disabled = false;
             }
         }
