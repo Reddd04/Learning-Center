@@ -87,6 +87,7 @@
 
         .form-group {
             margin-bottom: 22px;
+            position: relative;
         }
 
         label {
@@ -130,6 +131,7 @@
             position: relative;
             user-select: none;
             width: 100%;
+            z-index: 50; /* Diperbarui agar selalu berada di atas elemen lain */
         }
 
         .custom-select {
@@ -190,7 +192,7 @@
             border-radius: 12px;
             box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.15);
             overflow: hidden;
-            z-index: 99;
+            z-index: 100;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px) scale(0.98);
@@ -709,7 +711,8 @@
         });
 
         document.querySelectorAll('.custom-option').forEach(option => {
-            option.addEventListener('click', async () => {
+            option.addEventListener('click', async (e) => {
+                e.stopPropagation();
                 const value = option.getAttribute('data-value');
                 const text = option.textContent;
                 
@@ -1088,9 +1091,9 @@
             progressBarFill.style.width = '0%';
             uploadBtn.disabled = true;
 
-            const chunkSize = 1024 * 1024; // 1 MB per chunk agar stabil dan aman dari error network
+            const chunkSize = 1024 * 1024; // 1 MB per chunk
             const totalChunks = Math.ceil(file.size / chunkSize);
-            const uploadId = 'up_' + Date.now() + '_' + Math.random().toString(36.substring(2, 9));
+            const uploadId = 'up_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
 
             try {
                 for (let i = 0; i < totalChunks; i++) {
@@ -1130,7 +1133,6 @@
                         throw new Error(result.message || "Failed during chunk upload.");
                     }
 
-                    // Update real-time progress bar (0% - 100%)
                     const percentComplete = Math.round(((i + 1) / totalChunks) * 100);
                     progressBarFill.style.width = percentComplete + '%';
                     progressText.textContent = `Uploading file... ${percentComplete}%`;
