@@ -1065,7 +1065,7 @@
             defaultUploadTask();
         }
 
-        // FUNGSI UPLOAD FILE UTUH HINGGA 50 MB SEKALIGUS DENGAN PROGRESS BAR REAL-TIME
+        // FUNGSI UPLOAD 1 FILE UTUH SEKALIGUS (UTUH 100%) DENGAN PROGRESS BAR REAL-TIME
         async function defaultUploadTask() {
             const fileInput = document.getElementById('taskFileToUpload');
             const progressText = document.getElementById('uploadProgress');
@@ -1112,7 +1112,7 @@
                     xhr.open("POST", APPS_SCRIPT_URL, true);
                     xhr.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
 
-                    // Melacak progress pengiriman secara real-time dari 0 hingga 100%
+                    // Memantau progress pengiriman file secara utuh dari 0 hingga 100%
                     xhr.upload.onprogress = function(event) {
                         if (event.lengthComputable) {
                             const percentComplete = Math.round((event.loaded / event.total) * 100);
