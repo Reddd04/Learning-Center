@@ -543,7 +543,6 @@
 
             <div class="form-group">
                 <label>Select Department</label>
-                <!-- Custom Smooth Select Element -->
                 <div class="custom-select-wrapper" id="customDeptSelect">
                     <div class="custom-select" id="customSelectTrigger">-- Choose Department --</div>
                     <div class="custom-options" id="customOptionsList">
@@ -612,7 +611,6 @@
 
         <div class="form-group">
             <label for="adminJsInput">Custom Upload JavaScript (Optional):</label>
-            <small style="display:block; color: var(--text-muted); margin-bottom: 5px;">Leave empty to use the standard direct Google Drive upload function.</small>
             <textarea id="adminJsInput" rows="4" placeholder="// Leave blank for standard upload"></textarea>
         </div>
 
@@ -631,10 +629,7 @@
             
             <div class="task-detail">
                 <p style="margin-top:0;"><strong>Task Category:</strong> <span id="taskType" style="color: var(--accent); font-weight: 600;"></span></p>
-                
-                <!-- Media / News Container Area -->
                 <div id="mediaContainer" class="media-container"></div>
-
                 <p style="margin-bottom: 6px;"><strong>Instructions:</strong></p>
                 <p id="taskInstruction" style="font-weight: 400; line-height: 1.6; white-space: pre-line; background: white; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); margin: 0; color: #334155;"></p>
             </div>
@@ -665,7 +660,6 @@
     </div>
 
     <script>
-        // URL Apps Script Baru
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWNADl6NT-M_oSUnZbcBcRVCk4Qf7EFxiVa6agwjxf35rXQ8DZRxHf460m6J-gj6W2RQ/exec';
 
         let userTaskHistory = JSON.parse(localStorage.getItem('learningCenterHistory')) || {};
@@ -675,7 +669,6 @@
         let activeDepartment = "";
         let alertCallback = null;
 
-        // Custom Smooth Select Logic
         const customSelect = document.getElementById('customSelectTrigger');
         const customOptions = document.getElementById('customOptionsList');
         const hiddenInput = document.getElementById('department');
@@ -689,9 +682,7 @@
         document.querySelectorAll('.custom-option').forEach(option => {
             option.addEventListener('click', async () => {
                 const value = option.getAttribute('data-value');
-                const text = option.textContent;
-                
-                customSelect.textContent = text;
+                customSelect.textContent = option.textContent;
                 customSelect.classList.add('selected');
                 hiddenInput.value = value;
                 
@@ -700,7 +691,6 @@
                 
                 customSelect.classList.remove('open');
                 customOptions.classList.remove('open');
-
                 await preloadDepartmentData(value);
             });
         });
@@ -715,12 +705,8 @@
             try {
                 const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&dept=${encodeURIComponent(dept)}`);
                 const deptData = await response.json();
-                if (deptData.tasks) {
-                    liveDeptTasks[dept] = deptData.tasks;
-                }
-            } catch (err) {
-                console.error("Preload background error:", err);
-            }
+                if (deptData.tasks) liveDeptTasks[dept] = deptData.tasks;
+            } catch (err) { console.error(err); }
         }
 
         function showCustomAlert(message, title = "Notification") {
@@ -752,10 +738,7 @@
                 alertCallback = resolve;
                 const modal = document.getElementById('customAlertModal');
                 modal.style.display = 'flex';
-                requestAnimationFrame(() => {
-                    modal.classList.add('active');
-                    inputField.focus();
-                });
+                requestAnimationFrame(() => { modal.classList.add('active'); inputField.focus(); });
             });
         }
 
@@ -811,18 +794,15 @@
             document.getElementById('excelFileInput').value = "";
             document.getElementById('adminJsInput').value = "";
             tempExcelTasks = null;
-            
             document.getElementById('uploadStatus').textContent = "Checking online database...";
 
             try {
                 const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&dept=${encodeURIComponent(dept)}`);
                 const result = await response.json();
-                
                 document.getElementById('adminJsInput').value = result.customUploadJs || "";
                 const count = result.tasks ? result.tasks.length : 0;
-                document.getElementById('uploadStatus').textContent = `System status: ${count} tasks loaded in online database for this department.`;
+                document.getElementById('uploadStatus').textContent = `System status: ${count} tasks loaded.`;
             } catch (err) {
-                console.error(err);
                 document.getElementById('uploadStatus').textContent = "Failed to load online status.";
             }
         }
@@ -830,9 +810,9 @@
         function downloadTemplate(e) {
             e.preventDefault();
             const wsData = [
-                ["Music", "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "Listen to this music track with full attention."],
-                ["Video", "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "Watch the entire training video tutorial."],
-                ["News", "https://example.com/berita-hotel", "Read the news article and submit your review."]
+                ["Music", "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "Listen to this track."],
+                ["Video", "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "Watch tutorial."],
+                ["News", "https://example.com", "Read article."]
             ];
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             const wb = XLSX.utils.book_new();
@@ -849,8 +829,7 @@
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                     const jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                     
                     let parsedTasks = [];
@@ -867,13 +846,12 @@
 
                     if (parsedTasks.length > 0) {
                         tempExcelTasks = parsedTasks;
-                        document.getElementById('uploadStatus').textContent = `Successfully parsed ${parsedTasks.length} rows! Click "Save Department Changes" below.`;
+                        document.getElementById('uploadStatus').textContent = `Successfully parsed ${parsedTasks.length} rows! Click Save.`;
                     } else {
                         await showCustomAlert("The Excel file is empty or formatted incorrectly.", "Upload Warning");
                     }
                 } catch (error) {
                     await showCustomAlert("An error occurred while reading the Excel file.", "Error");
-                    console.error(error);
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -888,7 +866,7 @@
                 return;
             }
 
-            document.getElementById('uploadStatus').textContent = "Saving to Google Spreadsheet online... Please wait...";
+            document.getElementById('uploadStatus').textContent = "Saving to Google Spreadsheet online...";
 
             const payload = {
                 action: "saveAdminConfig",
@@ -901,21 +879,18 @@
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify(payload),
-                    headers: {
-                        "Content-Type": "text/plain;charset=utf-8"
-                    }
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }
                 });
                 const result = await response.json();
                 if (result.status === "success") {
                     delete liveDeptTasks[dept]; 
-                    await showCustomAlert(`Successfully saved configuration for ${dept} to online database!`, "Success");
+                    await showCustomAlert(`Successfully saved configuration for ${dept}!`, "Success");
                     loadAdminDataForDept();
                 } else {
                     await showCustomAlert("Failed to save: " + result.message, "Error");
                 }
             } catch (err) {
-                console.error(err);
-                await showCustomAlert("An error occurred while saving to the server.", "Error");
+                await showCustomAlert("An error occurred while saving.", "Error");
             }
         }
 
@@ -964,7 +939,7 @@
                 }
 
                 if (!deptTasks || deptTasks.length === 0) {
-                    await showCustomAlert(`Sorry, task data for ${activeDepartment} has not been uploaded by the Administrator yet.`, "Notice");
+                    await showCustomAlert(`Sorry, task data for ${activeDepartment} has not been uploaded by Administrator yet.`, "Notice");
                     return;
                 }
 
@@ -973,22 +948,18 @@
                 }
 
                 let availableTasks = deptTasks.filter(task => !userTaskHistory[activeUserName].includes(task.url));
-
                 if (availableTasks.length === 0) {
                     userTaskHistory[activeUserName] = [];
                     availableTasks = deptTasks;
                 }
 
-                const randomIndex = Math.floor(Math.random() * availableTasks.length);
-                const selectedTask = availableTasks[randomIndex];
-
+                const selectedTask = availableTasks[Math.floor(Math.random() * availableTasks.length)];
                 userTaskHistory[activeUserName].push(selectedTask.url);
                 localStorage.setItem('learningCenterHistory', JSON.stringify(userTaskHistory));
 
                 document.getElementById('userNameDisplay').textContent = activeUserName;
                 document.getElementById('userDeptDisplay').textContent = activeDepartment;
                 document.getElementById('taskType').textContent = selectedTask.type || "General";
-                
                 document.getElementById('taskInstruction').innerHTML = selectedTask.instruction || "";
                 
                 document.getElementById('taskFileToUpload').value = "";
@@ -1004,7 +975,7 @@
                     let embedLink = getEmbedUrl(rawUrl);
                     mediaContainer.innerHTML = `
                         <iframe src="${embedLink}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        <a href="${rawUrl}" target="_blank" class="fallback-link">🔗 If video fails to load, click here to watch directly on YouTube</a>
+                        <a href="${rawUrl}" target="_blank" class="fallback-link">🔗 Watch directly on YouTube</a>
                     `;
                 } else if (cat.includes('music') || cat.includes('audio') || rawUrl.endsWith('.mp3') || rawUrl.endsWith('.wav')) {
                     mediaContainer.innerHTML = `<audio controls src="${rawUrl}"></audio>`;
@@ -1012,7 +983,7 @@
                     mediaContainer.innerHTML = `
                         <div class="news-card">
                             <h3>📰 Article / News Task</h3>
-                            <p>Link: ${rawUrl}</p>
+                            <p>${rawUrl}</p>
                             <a href="${rawUrl}" target="_blank" class="news-btn">📖 Open Article Now</a>
                         </div>
                     `;
@@ -1025,8 +996,7 @@
                 requestAnimationFrame(() => modal.classList.add('active'));
 
             } catch (err) {
-                console.error(err);
-                await showCustomAlert("Failed to fetch task data from the server. Please check your internet connection.", "Error");
+                await showCustomAlert("Failed to fetch task data from server.", "Error");
             } finally {
                 submitBtn.disabled = false;
                 spinner.style.display = 'none';
@@ -1038,7 +1008,7 @@
             defaultUploadTask();
         }
 
-        // FUNGSI UPLOAD AMAN HINGGA 100 MB MENGGUNAKAN BASE64 JSON PAYLOAD
+        // FUNGSI UPLOAD CEPAT MENGGUNAKAN FORMDATA (TANPA BASE64, JAUH LEBIH CEPAT DAN RINGAN)
         async function defaultUploadTask() {
             const fileInput = document.getElementById('taskFileToUpload');
             const progressText = document.getElementById('uploadProgress');
@@ -1050,57 +1020,46 @@
             }
 
             const file = fileInput.files[0];
-            const maxSizeInBytes = 100 * 1024 * 1024; // 100 MB dalam Bytes
+            const maxSizeInBytes = 100 * 1024 * 1024; // 100 MB
 
             if (file.size > maxSizeInBytes) {
                 await showCustomAlert("File size exceeds the 100 MB limit. Please choose a smaller file.", "File Too Large");
                 return;
             }
 
-            progressText.textContent = "Preparing 100 MB file upload... Please wait...";
+            progressText.textContent = "🚀 Uploading file quickly... Please wait...";
             uploadBtn.disabled = true;
 
             try {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                
-                reader.onload = async function() {
-                    progressText.textContent = "Uploading large file to server...";
-                    const base64Data = reader.result.split(',')[1];
+                const formData = new FormData();
+                formData.append('action', 'uploadLargeFile');
+                formData.append('file', file);
+                formData.append('filename', file.name);
+                formData.append('mimeType', file.type);
+                formData.append('nama', activeUserName);
+                formData.append('departemen', activeDepartment);
 
-                    const payload = {
-                        action: "uploadLargeFile",
-                        filename: file.name,
-                        mimeType: file.type,
-                        nama: activeUserName,
-                        departemen: activeDepartment,
-                        fileData: base64Data
-                    };
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData,
+                    redirect: "follow"
+                });
 
-                    const response = await fetch(APPS_SCRIPT_URL, {
-                        method: 'POST',
-                        body: JSON.stringify(payload),
-                        headers: {
-                            "Content-Type": "text/plain;charset=utf-8"
-                        }
-                    });
+                const result = await response.json();
 
-                    const result = await response.json();
-
-                    if (result.status === "success") {
-                        progressText.textContent = "✅ File successfully uploaded and saved!";
-                        await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
-                        fileInput.value = "";
-                    } else {
-                        throw new Error(result.message || "Server error");
-                    }
-                    uploadBtn.disabled = false;
-                };
+                if (result.status === "success") {
+                    progressText.textContent = "✅ File successfully uploaded and saved!";
+                    await showCustomAlert("Thank you! Your assignment has been successfully submitted to your department folder.", "Success");
+                    fileInput.value = "";
+                } else {
+                    throw new Error(result.message || "Unknown server error");
+                }
 
             } catch (error) {
                 console.error("Upload error details:", error);
                 progressText.textContent = "❌ Upload failed.";
                 await showCustomAlert("Upload failed. Error: " + error.message, "Error");
+            } finally {
                 uploadBtn.disabled = false;
             }
         }
