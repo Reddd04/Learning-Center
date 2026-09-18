@@ -1091,16 +1091,21 @@
             progressBarFill.style.width = '0%';
             uploadBtn.disabled = true;
 
-            const chunkSize = 2 * 1024 * 1024; // 2 MB per bagian agar sangat stabil di jaringan dan server Google
+            const chunkSize = 1 * 1024 * 1024; // Diubah menjadi 1 MB per bagian agar sangat tahan banting terhadap gangguan koneksi
             const totalChunks = Math.ceil(file.size / chunkSize);
             const uploadId = 'up_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
 
             try {
-                // Tahap 1: Kirim pecahan file satu per satu dengan indikator progress bar real-time (0% - 95%)
+                // Tahap 1: Kirim pecahan file satu per satu dengan jeda antar chunk & indikator progress bar real-time
                 for (let i = 0; i < totalChunks; i++) {
                     const start = i * chunkSize;
                     const end = Math.min(file.size, start + chunkSize);
                     const chunk = file.slice(start, end);
+
+                    // Berikan jeda 200ms antar chunk agar server tidak kewalahan dan terhindar dari "Failed to fetch"
+                    if (i > 0) {
+                        await new Promise(resolve => setTimeout(resolve, 200));
+                    }
 
                     const base64Chunk = await new Promise((resolve, reject) => {
                         const reader = new FileReader();
