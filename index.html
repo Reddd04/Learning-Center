@@ -1065,7 +1065,7 @@
             defaultUploadTask();
         }
 
-        // SISTEM CHUNK AMAN HINGGA 50 MB DENGAN PENGGABUNGAN OTOMATIS DI SERVER MENJADI 1 FILE UTUH
+        // SISTEM CHUNK AMAN HINGGA 65 MB DENGAN PENGGABUNGAN OTOMATIS DI SERVER MENJADI 1 FILE UTUH
         async function defaultUploadTask() {
             const fileInput = document.getElementById('taskFileToUpload');
             const progressText = document.getElementById('uploadProgress');
@@ -1079,10 +1079,10 @@
             }
 
             const file = fileInput.files[0];
-            const maxSizeInBytes = 50 * 1024 * 1024; // Batas mutlak 50 MB murni
+            const maxSizeInBytes = 65 * 1024 * 1024; // Batas mutlak dinaikkan menjadi 65 MB di belakang layar
 
             if (file.size > maxSizeInBytes) {
-                await showCustomAlert("File size exceeds the 50 MB limit. Please choose a smaller file.", "File Too Large");
+                await showCustomAlert("File size exceeds the 65 MB limit. Please choose a smaller file.", "File Too Large");
                 return;
             }
 
